@@ -29,7 +29,7 @@ st.markdown("""
 
 st.markdown("<h1>🌲 CHẠY TRỐN QUÁI VẬT - RỪNG ĐÊM 🌙</h1>", unsafe_allow_html=True)
 
-# Hướng dẫn điều khiển trên điện thoại và máy tính
+# Hướng dẫn điều khiển gọn gàng
 with st.container():
     st.markdown("""
     <style>
@@ -54,8 +54,8 @@ with st.container():
     </div>
     """, unsafe_allow_html=True)
 
-# Phần 1: Giao diện HTML, CSS, Cảm ứng di động & Khởi tạo Audio API (Đã bỏ controls-bar)
-part1 = """<!DOCTYPE html>
+# Mã nguồn HTML, CSS và JavaScript hoàn chỉnh
+game_code = """<!DOCTYPE html>
 <html lang='vi'>
 <head>
 <meta charset='UTF-8'>
@@ -121,6 +121,7 @@ function playSound(type) {
     }
   } catch(e) {}
 }
+
 const cvs = document.getElementById('cvs');
 const ctx = cvs.getContext('2d');
 let playing = false, score = 0, coins = 0, speed = 3.5, timer = 0, frameCount = 0, currentMY = 460;
@@ -166,6 +167,7 @@ function startTheGame() {
   playing = true; score = 0; coins = 0; speed = 3.5; currentLane = 1; jumpY = 0; isJumping = false; frameCount = 0; currentMY = 460; obstacles = []; coinList = []; floatTexts = [];
   document.getElementById('menu').style.display = 'none';
 }
+
 function spawnObjects() {
   if (!playing) return;
   let lane = Math.floor(Math.random() * 3);
@@ -175,10 +177,7 @@ function spawnObjects() {
   } else { coinList.push({ lane: lane, y: -50 }); }
 }
 setInterval(spawnObjects, 1600);
-"""
 
-# Phần 2: Logic Game, Render nhân vật, quái vật Grinch và vòng lặp
-part2 = """
 function updateGame() {
   if (!playing) return;
   score++; frameCount++; timer += 0.15; speed = 3.5 + Math.floor(score / 400) * 0.2; roadOffset += speed;
@@ -203,6 +202,7 @@ function updateGame() {
     if (c.y > 550) coinList.splice(i, 1);
   }
 }
+
 function renderGame() {
   ctx.clearRect(0, 0, cvs.width, cvs.height);
   let skyGrad = ctx.createLinearGradient(0, 0, 0, 500);
@@ -213,4 +213,110 @@ function renderGame() {
   ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;
   ctx.beginPath(); ctx.moveTo(200, 0); ctx.lineTo(200, 500); ctx.moveTo(600, 0); ctx.lineTo(600, 500); ctx.stroke();
   ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)'; ctx.lineWidth = 2; ctx.setLineDash([15, 15]);
-  ctx.beginPath(); ctx.moveTo(333, roadOffset % 500 - 50
+  ctx.beginPath(); ctx.moveTo(333, roadOffset % 500 - 500); ctx.lineTo(333, 500);
+  ctx.moveTo(466, roadOffset % 500 - 500); ctx.lineTo(466, 500); ctx.stroke(); ctx.setLineDash([]);
+  
+  for (let i = 0; i < 10; i++) {
+    let tY = (i * 120 + roadOffset * 1.5) % 600 - 50;
+    ctx.fillStyle = '#064e3b'; ctx.beginPath(); ctx.arc(100, tY, 35, 0, Math.PI*2); ctx.arc(700, tY, 35, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#022c22'; ctx.fillRect(92, tY + 15, 16, 40); ctx.fillRect(692, tY + 15, 16, 40);
+  }
+  
+  obstacles.forEach(o => {
+    let targetX = lanes[o.lane];
+    if (o.type === 'rock') {
+      ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(targetX, o.y, 35, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#94a3b8'; ctx.beginPath(); ctx.arc(targetX - 6, o.y - 6, 15, 0, Math.PI*2); ctx.fill();
+    } else if (o.type === 'log') {
+      ctx.fillStyle = '#78350f'; ctx.fillRect(targetX - 50, o.y - 12, 100, 24);
+      ctx.fillStyle = '#15803d'; ctx.beginPath(); ctx.arc(targetX - 25, o.y - 6, 16, 0, Math.PI*2); ctx.fill();
+    } else if (o.type === 'tree') {
+      ctx.fillStyle = '#451a03'; ctx.fillRect(targetX - 12, o.y - 45, 24, 50);
+      ctx.fillStyle = '#16a34a'; ctx.beginPath(); ctx.arc(targetX, o.y - 50, 32, 0, Math.PI*2); ctx.fill();
+    }
+  });
+  
+  coinList.forEach(c => {
+    let targetX = lanes[c.lane];
+    let bounce = Math.sin(timer * 5) * 5;
+    ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(targetX, c.y + bounce, 18, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 3; ctx.stroke();
+  });
+  
+  floatTexts.forEach(ft => {
+    ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = '#fde047'; ctx.font = 'bold 20px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
+  });
+  
+  let pX = lanes[currentLane], pY = 385 + jumpY;
+  let armCycle = Math.sin(timer * 0.5);
+  let legCycle = Math.cos(timer * 0.5);
+  ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.beginPath(); ctx.ellipse(pX, pY + 38, 24, 9, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(pX - 10, pY + 15 + legCycle * 14, 8, 22);
+  ctx.fillRect(pX + 2, pY + 15 - legCycle * 14, 8, 22);
+  ctx.fillStyle = '#475569';
+  ctx.beginPath(); ctx.arc(pX - 6, pY + 36 + legCycle * 14, 5, 0, Math.PI*2);
+  ctx.arc(pX + 6, pY + 36 - legCycle * 14, 5, 0, Math.PI*2); ctx.fill();
+  
+  let bodyGrad = ctx.createLinearGradient(pX - 16, pY - 30, pX + 16, pY + 20);
+  bodyGrad.addColorStop(0, '#94a3b8'); bodyGrad.addColorStop(1, '#64748b');
+  ctx.fillStyle = bodyGrad; ctx.fillRect(pX - 16, pY - 30, 32, 48);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.beginPath(); ctx.arc(pX, pY - 22, 12, Math.PI, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(pX - 4, pY - 18); ctx.lineTo(pX - 6, pY - 8);
+  ctx.moveTo(pX + 4, pY - 18); ctx.lineTo(pX + 6, pY - 8); ctx.stroke();
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(pX - 24, pY - 25 - armCycle * 12, 8, 24);
+  ctx.fillRect(pX + 16, pY - 25 + armCycle * 12, 8, 24);
+  ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(pX, pY - 42, 14, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#334155'; ctx.fillRect(pX - 14, pY - 52, 28, 10);
+  
+  let targetMY = (frameCount > 120) ? 520 : 460;
+  currentMY += (targetMY - currentMY) * 0.05;
+  let mX = pX, mY = currentMY + Math.sin(timer * 0.6) * 6;
+  ctx.fillStyle = '#22c55e';
+  ctx.beginPath(); ctx.moveTo(mX, mY - 60); ctx.bezierCurveTo(mX + 45, mY - 40, mX + 50, mY + 10, mX + 30, mY + 40);
+  ctx.bezierCurveTo(mX + 15, mY + 55, mX - 15, mY + 55, mX - 30, mY + 40);
+  ctx.bezierCurveTo(mX - 50, mY + 10, mX - 45, mY - 40, mX, mY - 60); ctx.fill();
+  ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(mX, mY - 60); ctx.quadraticCurveTo(mX + 10, mY - 80, mX + 5, mY - 90);
+  ctx.moveTo(mX + 2, mY - 70); ctx.quadraticCurveTo(mX + 15, mY - 85, mX + 20, mY - 88); ctx.stroke();
+  ctx.strokeStyle = '#14532d'; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(mX - 32, mY - 30); ctx.lineTo(mX - 5, mY - 20);
+  ctx.moveTo(mX + 32, mY - 30); ctx.lineTo(mX + 5, mY - 20); ctx.stroke();
+  ctx.fillStyle = '#fef08a';
+  ctx.beginPath(); ctx.ellipse(mX - 18, mY - 20, 10, 6, -0.2, 0, Math.PI * 2);
+  ctx.ellipse(mX + 18, mY - 20, 10, 6, 0.2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath(); ctx.arc(mX - 16, mY - 20, 3, 0, Math.PI * 2); ctx.arc(mX + 20, mY - 20, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#14532d'; ctx.beginPath(); ctx.arc(mX, mY - 8, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#14532d'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(mX - 18, mY + 10); ctx.quadraticCurveTo(mX, mY + 22, mX + 20, mY + 8); ctx.stroke();
+  
+  if (!playing && score > 0) {
+    ctx.fillStyle = 'rgba(3, 7, 18, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#f43f5e'; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('BẠN ĐÃ BỊ QUÁI VẬT TÚM TÓC!', cvs.width / 2, 180);
+    ctx.fillStyle = '#fde047'; ctx.font = '22px monospace'; ctx.fillText('⭐ Điểm: ' + score + '  |  🪙 Vàng: ' + coins, cvs.width / 2, 240);
+    ctx.fillStyle = '#94a3b8'; ctx.font = '16px monospace'; ctx.fillText('Nhấn nút bên dưới để chơi lại', cvs.width / 2, 300);
+    document.getElementById('menu').style.display = 'flex';
+    document.getElementById('menu').querySelector('h1').innerText = 'THUA MẤT RỒI!';
+    document.querySelector('.play-btn').innerText = 'CHƠI LẠI NGAY';
+  }
+  document.getElementById('score').innerText = score;
+  document.getElementById('coins').innerText = coins;
+}
+
+function mainLoop() {
+  try { updateGame(); renderGame(); } catch(err) { console.error(err); }
+  requestAnimationFrame(mainLoop);
+}
+mainLoop();
+</script>
+</body>
+</html>
+"""
+
+components.html(game_code, height=540, scrolling=False)
