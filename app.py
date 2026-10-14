@@ -52,11 +52,11 @@ with st.container():
             <li><b>Mũi tên Trái (⬅️):</b> Chuyển sang làn TRÁI.</li>
             <li><b>Mũi tên Phải (➡️):</b> Chuyển sang làn PHẢI.</li>
         </ul>
-        <div class="tip">💡 Mẹo: Dùng phím mũi tên điều khiển cực kỳ mượt mà, không sợ xung đột phím!</div>
+        <div class="tip">💡 Mẹo: Khi thu thập đồng xu, hiệu ứng chữ "+1coin" sẽ bay lên sinh động!</div>
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML/JS tinh gọn, chỉ nhận phím Mũi tên
+# Mã nguồn HTML/JS với hiệu ứng +1coin
 game_code = (
     "<!DOCTYPE html>"
     "<html lang='vi'>"
@@ -85,7 +85,7 @@ game_code = (
     "<h1 style='color: #38bdf8; margin-bottom: 10px; text-shadow: 0 0 15px #0284c7;'>RỪNG ĐÊM 3D: BỨT TỐC</h1>"
     "<p style='max-width: 450px; color: #94a3b8; font-size: 15px; line-height: 1.5;'>"
     "Sử dụng các phím mũi tên để điều khiển nhân vật!<br>"
-    "<b>Mũi tên Lên</b> để nhảy, <b>Trái / Phải</b> để né tránh chướng ngại vật."
+    "Thu thập vàng để hiển thị hiệu ứng <b>+1coin</b> sinh động."
     "</p>"
     "<button class='play-btn' onclick='startTheGame()'>BẮT ĐẦU CHƠI</button>"
     "</div>"
@@ -136,7 +136,7 @@ game_code = (
     "    if (c.z >= 0.84 && c.z <= 0.95 && c.lane === currentLane && jumpY > -50) {"
     "      coins++;"
     "      let targetX = (c.lane === 0) ? 260 : (c.lane === 2) ? 540 : 400;"
-    "      floatTexts.push({ x: targetX, y: 360, text: '+1 🪙', alpha: 1.0, vy: -2.5 });"
+    "      floatTexts.push({ x: targetX, y: 360, text: '+1coin', alpha: 1.0, vy: -2.5 });"
     "      coinList.splice(i, 1); continue;"
     "    }"
     "    if (c.z > 1.05) coinList.splice(i, 1);"
