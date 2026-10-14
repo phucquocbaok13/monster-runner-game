@@ -52,11 +52,11 @@ with st.container():
             <li><b>Phím A:</b> Chuyển sang làn TRÁI.</li>
             <li><b>Phím D:</b> Chuyển sang làn PHẢI.</li>
         </ul>
-        <div class="tip">💡 Mẹo: Nhân vật hoodie sáng rõ và quái vật xanh neon cực kỳ nổi bật trên nền rừng đêm!</div>
+        <div class="tip">💡 Mẹo: Nhân vật mặc áo hoodie xám sáng rõ và quái vật xanh neon cực kỳ nổi bật ở ngay phía trước màn hình!</div>
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML/JS tối ưu hóa độ tương phản hiển thị
+# Mã nguồn HTML/JS hoàn toàn mới, tối ưu hóa chống lỗi và hiển thị chắc chắn nhân vật
 game_code = """<!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -145,7 +145,7 @@ game_code = """<!DOCTYPE html>
     <div id="menu">
         <h1 style="color: #38bdf8; margin-bottom: 10px; text-shadow: 0 0 15px #0284c7;">RỪNG ĐÊM 3D: CHẠY TRỐN</h1>
         <p style="max-width: 450px; color: #94a3b8; font-size: 15px; line-height: 1.5;">
-            Góc nhìn phía sau lưng nhân vật với đồ họa tương phản cao!<br>
+            Nhân vật áo hoodie xám và quái vật xanh neon xuất hiện trực diện!<br>
             Dùng phím <b>W</b> để nhảy, <b>A</b> và <b>D</b> để né tránh chướng ngại vật!
         </p>
         <button class="play-btn" onclick="startTheGame()">BẮT ĐẦU CHƠI</button>
@@ -263,7 +263,7 @@ function updateGame() {
 function renderGame() {
     ctx.clearRect(0, 0, cvs.width, cvs.height);
 
-    // 1. Bầu trời đêm sáng sủa & Trăng
+    // 1. Bầu trời & Trăng
     let skyGrad = ctx.createLinearGradient(0, 0, 0, 160);
     skyGrad.addColorStop(0, '#0f172a');
     skyGrad.addColorStop(1, '#1e293b');
@@ -272,10 +272,8 @@ function renderGame() {
 
     ctx.fillStyle = '#f1f5f9';
     ctx.beginPath(); ctx.arc(680, 50, 28, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(241, 245, 249, 0.2)';
-    ctx.beginPath(); ctx.arc(680, 50, 48, 0, Math.PI * 2); ctx.fill();
 
-    // 2. Con đường 3D sáng sủa rõ nét
+    // 2. Con đường 3D
     ctx.fillStyle = '#0f172a';
     ctx.fillRect(0, 160, cvs.width, 340);
 
@@ -287,7 +285,6 @@ function renderGame() {
     ctx.fillStyle = '#1e293b';
     ctx.fill();
 
-    // Vạch đường phản quang sáng
     ctx.strokeStyle = '#38bdf8';
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -313,87 +310,82 @@ function renderGame() {
     }
 
     // 4. Vật thể & Tiền vàng
-    let drawList = [];
-    obstacles.forEach(o => drawList.push({type: 'obs', data: o, z: o.z}));
-    coinList.forEach(c => drawList.push({type: 'coin', data: c, z: c.z}));
-    drawList.sort((a, b) => a.z - b.z);
-
-    drawList.forEach(item => {
-        let z = item.z;
+    obstacles.forEach(o => {
+        let z = o.z;
         let screenY = 160 + z * 340;
         let sc = 0.2 + z * 0.8;
+        let targetX = (o.lane === 0) ? 400 - z * 300 : (o.lane === 2) ? 400 + z * 300 : 400;
 
-        let targetX = 400;
-        if (item.data.lane === 0) targetX = 400 - z * (400 - 100);
-        else if (item.data.lane === 2) targetX = 400 + z * (700 - 400);
-
-        if (item.type === 'coin') {
-            ctx.fillStyle = '#fde047';
-            ctx.beginPath(); ctx.arc(targetX, screenY - 20*sc, 14*sc, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 2; ctx.stroke();
-        } else {
-            let d = item.data;
-            if (d.type === 'rock') {
-                ctx.fillStyle = '#94a3b8';
-                ctx.beginPath(); ctx.arc(targetX, screenY, 30*sc, 0, Math.PI*2); ctx.fill();
-            } else if (d.type === 'log') {
-                ctx.fillStyle = '#a16207';
-                ctx.fillRect(targetX - 45*sc, screenY - 15*sc, 90*sc, 22*sc);
-                ctx.fillStyle = '#22c55e';
-                ctx.beginPath(); ctx.arc(targetX - 25*sc, screenY - 10*sc, 14*sc, 0, Math.PI*2); ctx.fill();
-            } else if (d.type === 'tree') {
-                ctx.fillStyle = '#78350f';
-                ctx.fillRect(targetX - 12*sc, screenY - 45*sc, 24*sc, 50*sc);
-                ctx.fillStyle = '#16a34a';
-                ctx.beginPath(); ctx.arc(targetX, screenY - 50*sc, 28*sc, 0, Math.PI*2); ctx.fill();
-            }
+        if (o.type === 'rock') {
+            ctx.fillStyle = '#94a3b8';
+            ctx.beginPath(); ctx.arc(targetX, screenY, 30*sc, 0, Math.PI*2); ctx.fill();
+        } else if (o.type === 'log') {
+            ctx.fillStyle = '#a16207';
+            ctx.fillRect(targetX - 45*sc, screenY - 15*sc, 90*sc, 22*sc);
+        } else if (o.type === 'tree') {
+            ctx.fillStyle = '#78350f';
+            ctx.fillRect(targetX - 12*sc, screenY - 45*sc, 24*sc, 50*sc);
         }
     });
 
-    // 5. NHÂN VẬT CHÍNH (ÁO HOODIE XÁM SÁNG RÕ)
+    coinList.forEach(c => {
+        let z = c.z;
+        let screenY = 160 + z * 340;
+        let sc = 0.2 + z * 0.8;
+        let targetX = (c.lane === 0) ? 400 - z * 300 : (c.lane === 2) ? 400 + z * 300 : 400;
+
+        ctx.fillStyle = '#fde047';
+        ctx.beginPath(); ctx.arc(targetX, screenY - 20*sc, 14*sc, 0, Math.PI*2); ctx.fill();
+    });
+
+    // ==========================================
+    // 5. NHÂN VẬT CHÍNH (HOODIE XÁM SÁNG) - LUÔN HIỂN THỊ Ở TIỀN CẢNH
+    // ==========================================
     let pX = lanes[currentLane];
     let pY = 410 + jumpY;
     let legMove = isJumping ? 0 : Math.sin(timer * 0.8) * 12;
 
     // Bóng nhân vật
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.beginPath(); ctx.ellipse(pX, pY + 30, 24, 9, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.beginPath(); ctx.ellipse(pX, pY + 30, 26, 10, 0, 0, Math.PI*2); ctx.fill();
 
-    // Hoodie màu xám sáng tương phản cao
-    ctx.fillStyle = '#94a3b8';
-    ctx.fillRect(pX - 20, pY - 55, 40, 55);
-    // Mũ Hoodie trùm sau lưng
+    // Thân áo hoodie xám sáng
     ctx.fillStyle = '#cbd5e1';
-    ctx.beginPath(); ctx.arc(pX, pY - 48, 18, Math.PI, Math.PI*2); ctx.fill();
+    ctx.fillRect(pX - 22, pY - 60, 44, 60);
+    // Mũ hoodie trùm phía sau
+    ctx.fillStyle = '#94a3b8';
+    ctx.beginPath(); ctx.arc(pX, pY - 52, 20, Math.PI, Math.PI*2); ctx.fill();
     // Đầu và tóc
     ctx.fillStyle = '#fef08a';
-    ctx.beginPath(); ctx.arc(pX, pY - 68, 15, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(pX, pY - 74, 16, 0, Math.PI*2); ctx.fill();
     // Chân chạy
-    ctx.fillStyle = '#334155';
-    ctx.fillRect(pX - 12, pY, 10, 26 + legMove);
-    ctx.fillRect(pX + 2, pY, 10, 26 - legMove);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(pX - 13, pY, 11, 28 + legMove);
+    ctx.fillRect(pX + 2, pY, 11, 28 - legMove);
 
-    // 6. QUÁI VẬT XANH LÁ NEON SÁNG RỰC
+    // ==========================================
+    // 6. QUÁI VẬT XANH LÁ NEON - SÁT GÁY NGAY SAU LƯNG
+    // ==========================================
     let mBreath = Math.sin(timer * 0.5) * 6;
     let mX = pX;
     let mY = 465 + mBreath;
 
+    ctx.fillStyle = '#16a34a';
+    ctx.beginPath(); ctx.arc(mX, mY, 75, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#22c55e';
-    ctx.beginPath(); ctx.arc(mX, mY, 70, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#4ade80';
-    ctx.beginPath(); ctx.arc(mX, mY - 22, 48, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(mX, mY - 25, 52, 0, Math.PI*2); ctx.fill();
 
-    // Mắt quái vật phát sáng đỏ/vàng
+    // Mắt phát sáng dữ dội
     ctx.fillStyle = '#fde047';
-    ctx.beginPath(); ctx.arc(mX - 15, mY - 30, 9, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(mX + 15, mY - 30, 9, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#dc2626';
-    ctx.beginPath(); ctx.arc(mX - 15, mY - 30, 4, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(mX + 15, mY - 30, 4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(mX - 16, mY - 32, 10, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(mX + 16, mY - 32, 10, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath(); ctx.arc(mX - 16, mY - 32, 4.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(mX + 16, mY - 32, 4.5, 0, Math.PI*2); ctx.fill();
 
-    // 7. GAME OVER
+    // 7. MÀN HÌNH GAME OVER
     if (!playing && score > 0) {
-        ctx.fillStyle = 'rgba(3, 7, 18, 0.92)';
+        ctx.fillStyle = 'rgba(3, 7, 18, 0.94)';
         ctx.fillRect(0, 0, cvs.width, cvs.height);
 
         ctx.fillStyle = '#f43f5e';
@@ -419,8 +411,12 @@ function renderGame() {
 }
 
 function mainLoop() {
-    updateGame();
-    renderGame();
+    try {
+        updateGame();
+        renderGame();
+    } catch(err) {
+        console.error(err);
+    }
     requestAnimationFrame(mainLoop);
 }
 
