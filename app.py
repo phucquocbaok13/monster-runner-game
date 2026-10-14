@@ -77,7 +77,7 @@ with st.container():
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn trò chơi All-in-one chuẩn Subway Surfers (Nhân vật rõ nét ở tiền cảnh)
+# Mã nguồn trò chơi All-in-one
 game_html = """<!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -486,66 +486,75 @@ function draw() {
         }
     });
 
-    // 5. NHÂN VẬT CHÍNH (HIỆN RÕ RÀNG Ở TIỀN CẢNH)
+    // 5. NHÂN VẬT TRƯỞNG THÀNH MẶC ÁO HOODIE XÁM (GÓC NHÌN TỪ SAU LƯNG)
     let playerBaseX = 400;
     if (playerLane === 0) playerBaseX = 275;
     else if (playerLane === 1) playerBaseX = 400;
     else if (playerLane === 2) playerBaseX = 525;
 
-    let playerDrawY = 410 + playerYOffset;
-    let legAnim = isJumping ? 0 : Math.sin(animTimer * 7) * 12;
+    let playerDrawY = 400 + playerYOffset;
+    let legAnim = isJumping ? 0 : Math.sin(animTimer * 7) * 14;
+    let armAnim = isJumping ? 0 : Math.cos(animTimer * 7) * 12;
 
-    // Bóng chân nhân vật
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    // Bóng chân
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
     ctx.beginPath();
-    ctx.ellipse(playerBaseX, playerDrawY + 25, 22, 8, 0, 0, Math.PI * 2);
+    ctx.ellipse(playerBaseX, playerDrawY + 30, 24, 9, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Thân áo trắng
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(playerBaseX - 20, playerDrawY - 55, 40, 55);
-    // Ba lô hồng/đỏ
-    ctx.fillStyle = '#e91e63';
-    ctx.fillRect(playerBaseX - 12, playerDrawY - 45, 24, 30);
-    // Đầu
-    ctx.fillStyle = '#ffd1b3';
+    // Thân người trưởng thành mặc Áo Hoodie Xám
+    ctx.fillStyle = '#616161';
+    ctx.fillRect(playerBaseX - 20, playerDrawY - 60, 40, 60);
+    // Mũ trùm đầu (Hood) phía sau lưng
+    ctx.fillStyle = '#757575';
     ctx.beginPath();
-    ctx.arc(playerBaseX, playerDrawY - 70, 16, 0, Math.PI * 2);
+    ctx.arc(playerBaseX, playerDrawY - 55, 18, Math.PI, Math.PI * 2);
     ctx.fill();
-    // Mũ đỏ
-    ctx.fillStyle = '#e53935';
+    // Hai tay đánh nhịp chạy
+    ctx.fillStyle = '#616161';
+    ctx.fillRect(playerBaseX - 30, playerDrawY - 45 + armAnim, 10, 30);
+    ctx.fillRect(playerBaseX + 20, playerDrawY - 45 - armAnim, 10, 30);
+    // Đầu và tóc người trưởng thành
+    ctx.fillStyle = '#d7ccc8';
     ctx.beginPath();
-    ctx.arc(playerBaseX, playerDrawY - 75, 16, Math.PI, Math.PI * 2);
+    ctx.arc(playerBaseX, playerDrawY - 75, 14, 0, Math.PI * 2);
     ctx.fill();
-    // Chân chạy
-    ctx.fillStyle = '#1565c0';
-    ctx.fillRect(playerBaseX - 12, playerDrawY, 10, 26 + legAnim);
-    ctx.fillRect(playerBaseX + 2, playerDrawY, 10, 26 - legAnim);
+    ctx.fillStyle = '#3e2723'; // Tóc
+    ctx.beginPath();
+    ctx.arc(playerBaseX, playerDrawY - 79, 14, Math.PI, Math.PI * 2);
+    ctx.fill();
+    // Quần dài & Đôi chân chạy trưởng thành
+    ctx.fillStyle = '#263238';
+    ctx.fillRect(playerBaseX - 13, playerDrawY, 10, 30 + legAnim);
+    ctx.fillRect(playerBaseX + 3, playerDrawY, 10, 30 - legAnim);
 
-    // 6. QUÁI VẬT XANH BÁM ĐUỔI NGAY PHÍA SAU
+    // 6. QUÁI VẬT TO LỚN, MÀU XANH LÁ BÁM ĐUỔI SÁT SAU LƯNG
     let monsterBreath = Math.sin(animTimer * 5) * 8;
-    let monsterX = 400 + (playerLane - 1) * 30;
-    let monsterY = 465 + monsterBreath;
+    let monsterX = 400 + (playerLane - 1) * 35;
+    let monsterY = 460 + monsterBreath;
 
-    ctx.fillStyle = '#00796b';
+    // Thân hình khổng lồ màu xanh lá
+    ctx.fillStyle = '#2e7d32';
     ctx.beginPath();
-    ctx.arc(monsterX, monsterY, 65, 0, Math.PI * 2);
+    ctx.arc(monsterX, monsterY, 70, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = '#00897b';
+    // Đầu quái vật to lớn xanh lá
+    ctx.fillStyle = '#388e3c';
     ctx.beginPath();
-    ctx.arc(monsterX, monsterY - 22, 42, 0, Math.PI * 2);
+    ctx.arc(monsterX, monsterY - 25, 48, 0, Math.PI * 2);
     ctx.fill();
 
+    // Đôi mắt đỏ rực hung dữ
     ctx.fillStyle = '#ffeb3b';
     ctx.beginPath();
-    ctx.arc(monsterX - 14, monsterY - 28, 8, 0, Math.PI * 2);
-    ctx.arc(monsterX + 14, monsterY - 28, 8, 0, Math.PI * 2);
+    ctx.arc(monsterX - 16, monsterY - 32, 9, 0, Math.PI * 2);
+    ctx.arc(monsterX + 16, monsterY - 32, 9, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#d32f2f';
+    ctx.fillStyle = '#b71c1c';
     ctx.beginPath();
-    ctx.arc(monsterX - 14, monsterY - 28, 3.5, 0, Math.PI * 2);
-    ctx.arc(monsterX + 14, monsterY - 28, 3.5, 0, Math.PI * 2);
+    ctx.arc(monsterX - 16, monsterY - 32, 4, 0, Math.PI * 2);
+    ctx.arc(monsterX + 16, monsterY - 32, 4, 0, Math.PI * 2);
     ctx.fill();
 
     // 7. MÀN HÌNH GAME OVER
@@ -556,7 +565,7 @@ function draw() {
         ctx.fillStyle = '#ff5252';
         ctx.font = 'bold 38px "Courier New"';
         ctx.textAlign = 'center';
-        ctx.fillText('BẠN ĐÃ BỊ QUÁI VẬT TÚM TÓC!', canvas.width / 2, 180);
+        ctx.fillText('BẠN ĐÃ BỊ QUÁI VẬT XANH TÚM TÓC!', canvas.width / 2, 180);
         
         ctx.fillStyle = '#ffeb3b';
         ctx.font = '22px "Courier New"';
