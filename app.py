@@ -52,191 +52,237 @@ with st.container():
             <li><b>Mũi tên Trái (⬅️):</b> Chuyển sang làn TRÁI.</li>
             <li><b>Mũi tên Phải (➡️):</b> Chuyển sang làn PHẢI.</li>
         </ul>
-        <div class="tip">💡 Mẹo: Đã thêm hiệu ứng âm thanh sống động khi ăn xu, nhảy và thua cuộc!</div>
+        <div class="tip">💡 Mẹo: Âm thanh sống động, nhân vật chạy chân thực và quái vật lùi lại sau 2 giây!</div>
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML/JS tích hợp Web Audio API phát âm thanh chuẩn xác
-game_code = (
-    "<!DOCTYPE html>"
-    "<html lang='vi'>"
-    "<head>"
-    "<meta charset='UTF-8'>"
-    "<title>Night Forest Straight Road</title>"
-    "<style>"
-    "body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: monospace; color: white; overflow: hidden; }"
-    "#game-wrap { position: relative; box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); border-radius: 8px; overflow: hidden; }"
-    "canvas { display: block; background: #030712; }"
-    "#hud { position: absolute; top: 12px; left: 15px; right: 15px; display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; text-shadow: 2px 2px #000; pointer-events: none; }"
-    ".badge { background: rgba(15, 23, 42, 0.85); padding: 6px 14px; border-radius: 6px; border: 1px solid #38bdf8; }"
-    "#menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 10; }"
-    ".play-btn { background: #0284c7; color: white; border: none; padding: 14px 32px; font-size: 20px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; box-shadow: 0 0 15px #38bdf8; transition: 0.2s; }"
-    ".play-btn:hover { background: #38bdf8; color: #0f172a; transform: scale(1.05); }"
-    "</style>"
-    "</head>"
-    "<body>"
-    "<div id='game-wrap'>"
-    "<div id='hud'>"
-    "<div class='badge'>⭐ ĐIỂM: <span id='score'>0</span></div>"
-    "<div class='badge' style='color: #fde047;'>🪙 VÀNG: <span id='coins'>0</span></div>"
-    "<div class='badge' style='color: #f43f5e;'>🌲 RỪNG ĐÊM</div>"
-    "</div>"
-    "<div id='menu'>"
-    "<h1 style='color: #38bdf8; margin-bottom: 10px; text-shadow: 0 0 15px #0284c7;'>RỪNG ĐÊM: ĐƯỜNG THẲNG</h1>"
-    "<p style='max-width: 450px; color: #94a3b8; font-size: 15px; line-height: 1.5;'>"
-    "Đã tích hợp âm thanh sinh động (ăn xu, nhảy, thua cuộc)!<br>"
-    "Dùng phím <b>Mũi tên Lên</b> để nhảy, <b>Trái / Phải</b> để đổi làn."
-    "</p>"
-    "<button class='play-btn' onclick='startTheGame()'>BẮT ĐẦU CHƠI</button>"
-    "</div>"
-    "<canvas id='cvs' width='800' height='500'></canvas>"
-    "</div>"
-    "<script>"
-    "let audioCtx = null;"
-    "function initAudio() {"
-    "  if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }"
-    "}"
-    "function playSound(type) {"
-    "  if (!audioCtx) return;"
-    "  try {"
-    "    let osc = audioCtx.createOscillator();"
-    "    let gain = audioCtx.createGain();"
-    "    osc.connect(gain); gain.connect(audioCtx.destination);"
-    "    let now = audioCtx.currentTime;"
-    "    if (type === 'coin') {"
-    "      osc.type = 'sine'; osc.frequency.setValueAtTime(587.33, now);"
-    "      osc.frequency.setValueAtTime(880, now + 0.08);"
-    "      gain.gain.setValueAtTime(0.3, now);"
-    "      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);"
-    "      osc.start(now); osc.stop(now + 0.25);"
-    "    } else if (type === 'jump') {"
-    "      osc.type = 'triangle'; osc.frequency.setValueAtTime(200, now);"
-    "      osc.frequency.exponentialRampToValueAtTime(450, now + 0.15);"
-    "      gain.gain.setValueAtTime(0.2, now);"
-    "      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);"
-    "      osc.start(now); osc.stop(now + 0.15);"
-    "    } else if (type === 'over') {"
-    "      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, now);"
-    "      osc.frequency.linearRampToValueAtTime(70, now + 0.4);"
-    "      gain.gain.setValueAtTime(0.4, now);"
-    "      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);"
-    "      osc.start(now); osc.stop(now + 0.4);"
-    "    }"
-    "  } catch(e) {}"
-    "}"
-    "const cvs = document.getElementById('cvs');"
-    "const ctx = cvs.getContext('2d');"
-    "let playing = false, score = 0, coins = 0, speed = 3.5, timer = 0, frameCount = 0, currentMY = 460;"
-    "const lanes = [280, 400, 520];"
-    "let currentLane = 1, jumpY = 0, jumpVY = 0, isJumping = false;"
-    "let obstacles = [], coinList = [], floatTexts = [], roadOffset = 0;"
-    "window.addEventListener('keydown', (e) => {"
-    "  if (!playing) return;"
-    "  if (e.code === 'ArrowLeft') { if (currentLane > 0) currentLane--; e.preventDefault(); }"
-    "  else if (e.code === 'ArrowRight') { if (currentLane < 2) currentLane++; e.preventDefault(); }"
-    "  else if (e.code === 'ArrowUp') { if (!isJumping) { isJumping = true; jumpVY = -11; playSound('jump'); } e.preventDefault(); }"
-    "});"
-    "function startTheGame() {"
-    "  initAudio();"
-    "  playing = true; score = 0; coins = 0; speed = 3.5; currentLane = 1; jumpY = 0; isJumping = false; frameCount = 0; currentMY = 460; obstacles = []; coinList = []; floatTexts = [];"
-    "  document.getElementById('menu').style.display = 'none';"
-    "}"
-    "function spawnObjects() {"
-    "  if (!playing) return;"
-    "  let lane = Math.floor(Math.random() * 3);"
-    "  if (Math.random() < 0.6) {"
-    "    let types = ['rock', 'log', 'tree'];"
-    "    obstacles.push({ lane: lane, y: -50, type: types[Math.floor(Math.random() * types.length)] });"
-    "  } else { coinList.push({ lane: lane, y: -50 }); }"
-    "}"
-    "setInterval(spawnObjects, 1600);"
-    "function updateGame() {"
-    "  if (!playing) return;"
-    "  score++; frameCount++; timer += 0.15; speed = 3.5 + Math.floor(score / 400) * 0.2; roadOffset += speed;"
-    "  if (isJumping) { jumpY += jumpVY; jumpVY += 0.55; if (jumpY >= 0) { jumpY = 0; isJumping = false; } }"
-    "  for (let i = floatTexts.length - 1; i >= 0; i--) {"
-    "    let ft = floatTexts[i]; ft.y += ft.vy; ft.alpha -= 0.025; if (ft.alpha <= 0) floatTexts.splice(i, 1);"
-    "  }"
-    "  for (let i = obstacles.length - 1; i >= 0; i--) {"
-    "    let obs = obstacles[i]; obs.y += speed;"
-    "    if (obs.y >= 350 && obs.y <= 420 && obs.lane === currentLane) {"
-    "      if (!(obs.type === 'log' && isJumping && jumpY < -35)) { playing = false; playSound('over'); }"
-    "    }"
-    "    if (obs.y > 550) obstacles.splice(i, 1);"
-    "  }"
-    "  for (let i = coinList.length - 1; i >= 0; i--) {"
-    "    let c = coinList[i]; c.y += speed;"
-    "    if (c.y >= 350 && c.y <= 420 && c.lane === currentLane && jumpY > -45) {"
-    "      coins++; playSound('coin');"
-    "      floatTexts.push({ x: lanes[c.lane], y: 360, text: '+1coin', alpha: 1.0, vy: -2 });"
-    "      coinList.splice(i, 1); continue;"
-    "    }"
-    "    if (c.y > 550) coinList.splice(i, 1);"
-    "  }"
-    "}"
-    "function renderGame() {"
-    "  ctx.clearRect(0, 0, cvs.width, cvs.height);"
-    "  let skyGrad = ctx.createLinearGradient(0, 0, 0, 500);"
-    "  skyGrad.addColorStop(0, '#020617'); skyGrad.addColorStop(1, '#0f172a');"
-    "  ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, cvs.width, 500);"
-    "  ctx.fillStyle = '#f1f5f9'; ctx.beginPath(); ctx.arc(700, 70, 30, 0, Math.PI * 2); ctx.fill();"
-    "  ctx.fillStyle = '#1e293b'; ctx.fillRect(200, 0, 400, 500);"
-    "  ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;"
-    "  ctx.beginPath(); ctx.moveTo(200, 0); ctx.lineTo(200, 500); ctx.moveTo(600, 0); ctx.lineTo(600, 500); ctx.stroke();"
-    "  ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)'; ctx.lineWidth = 2; ctx.setLineDash([15, 15]);"
-    "  ctx.beginPath(); ctx.moveTo(333, roadOffset % 500 - 500); ctx.lineTo(333, 500);"
-    "  ctx.moveTo(466, roadOffset % 500 - 500); ctx.lineTo(466, 500); ctx.stroke(); ctx.setLineDash([]);"
-    "  for (let i = 0; i < 10; i++) {"
-    "    let tY = (i * 120 + roadOffset * 1.5) % 600 - 50;"
-    "    ctx.fillStyle = '#064e3b'; ctx.beginPath(); ctx.arc(100, tY, 35, 0, Math.PI*2); ctx.arc(700, tY, 35, 0, Math.PI*2); ctx.fill();"
-    "    ctx.fillStyle = '#022c22'; ctx.fillRect(92, tY + 15, 16, 40); ctx.fillRect(692, tY + 15, 16, 40);"
-    "  }"
-    "  obstacles.forEach(o => {"
-    "    let targetX = lanes[o.lane];"
-    "    if (o.type === 'rock') {"
-    "      ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(targetX, o.y, 35, 0, Math.PI*2); ctx.fill();"
-    "      ctx.fillStyle = '#94a3b8'; ctx.beginPath(); ctx.arc(targetX - 6, o.y - 6, 15, 0, Math.PI*2); ctx.fill();"
-    "    } else if (o.type === 'log') {"
-    "      ctx.fillStyle = '#78350f'; ctx.fillRect(targetX - 50, o.y - 12, 100, 24);"
-    "      ctx.fillStyle = '#15803d'; ctx.beginPath(); ctx.arc(targetX - 25, o.y - 6, 16, 0, Math.PI*2); ctx.fill();"
-    "    } else if (o.type === 'tree') {"
-    "      ctx.fillStyle = '#451a03'; ctx.fillRect(targetX - 12, o.y - 45, 24, 50);"
-    "      ctx.fillStyle = '#16a34a'; ctx.beginPath(); ctx.arc(targetX, o.y - 50, 32, 0, Math.PI*2); ctx.fill();"
-    "    }"
-    "  });"
-    "  coinList.forEach(c => {"
-    "    let targetX = lanes[c.lane];"
-    "    let bounce = Math.sin(timer * 5) * 5;"
-    "    ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(targetX, c.y + bounce, 18, 0, Math.PI*2); ctx.fill();"
-    "    ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 3; ctx.stroke();"
-    "  });"
-    "  floatTexts.forEach(ft => {"
-    "    ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = '#fde047'; ctx.font = 'bold 20px monospace'; ctx.textAlign = 'center';"
-    "    ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();"
-    "  });"
-    "  let pX = lanes[currentLane], pY = 385 + jumpY;"
-    "  let armCycle = Math.sin(timer * 0.5);"
-    "  let legCycle = Math.cos(timer * 0.5);"
-    "  ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.beginPath(); ctx.ellipse(pX, pY + 38, 24, 9, 0, 0, Math.PI*2); ctx.fill();"
-    "  ctx.fillStyle = '#1e293b';"
-    "  ctx.fillRect(pX - 10, pY + 15 + legCycle * 14, 8, 22);"
-    "  ctx.fillRect(pX + 2, pY + 15 - legCycle * 14, 8, 22);"
-    "  ctx.fillStyle = '#475569';"
-    "  ctx.beginPath(); ctx.arc(pX - 6, pY + 36 + legCycle * 14, 5, 0, Math.PI*2);"
-    "  ctx.arc(pX + 6, pY + 36 - legCycle * 14, 5, 0, Math.PI*2); ctx.fill();"
-    "  let bodyGrad = ctx.createLinearGradient(pX - 16, pY - 30, pX + 16, pY + 20);"
-    "  bodyGrad.addColorStop(0, '#94a3b8'); bodyGrad.addColorStop(1, '#64748b');"
-    "  ctx.fillStyle = bodyGrad; ctx.fillRect(pX - 16, pY - 30, 32, 48);"
-    "  ctx.fillStyle = '#cbd5e1';"
-    "  ctx.beginPath(); ctx.arc(pX, pY - 22, 12, Math.PI, Math.PI*2); ctx.fill();"
-    "  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;"
-    "  ctx.beginPath(); ctx.moveTo(pX - 4, pY - 18); ctx.lineTo(pX - 6, pY - 8);"
-    "  ctx.moveTo(pX + 4, pY - 18); ctx.lineTo(pX + 6, pY - 8); ctx.stroke();"
-    "  ctx.fillStyle = '#475569';"
-    "  ctx.fillRect(pX - 24, pY - 25 - armCycle * 12, 8, 24);"
-    "  ctx.fillRect(pX + 16, pY - 25 + armCycle * 12, 8, 24);"
-    "  ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(pX, pY - 42, 14, 0, Math.PI*2); ctx.fill();"
-    "  ctx.fillStyle = '#334155'; ctx.fillRect(pX - 14, pY - 52, 28, 10);"
-    "  let targetMY = (frameCount > 120) ? 520 : 460;"
-    "  currentMY += (targetMY - currentMY) * 0.05;"
-    "  let mX = pX, mY = currentMY + Math.sin(timer * 0.6) * 6;"
+# Phần 1: Giao diện HTML, CSS và Khởi tạo Audio API
+part1 = """<!DOCTYPE html>
+<html lang='vi'>
+<head>
+<meta charset='UTF-8'>
+<title>Night Forest Straight Road</title>
+<style>
+body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: monospace; color: white; overflow: hidden; }
+#game-wrap { position: relative; box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); border-radius: 8px; overflow: hidden; }
+canvas { display: block; background: #030712; }
+#hud { position: absolute; top: 12px; left: 15px; right: 15px; display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; text-shadow: 2px 2px #000; pointer-events: none; }
+.badge { background: rgba(15, 23, 42, 0.85); padding: 6px 14px; border-radius: 6px; border: 1px solid #38bdf8; }
+#menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 10; }
+.play-btn { background: #0284c7; color: white; border: none; padding: 14px 32px; font-size: 20px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; box-shadow: 0 0 15px #38bdf8; transition: 0.2s; }
+.play-btn:hover { background: #38bdf8; color: #0f172a; transform: scale(1.05); }
+</style>
+</head>
+<body>
+<div id='game-wrap'>
+<div id='hud'>
+<div class='badge'>⭐ ĐIỂM: <span id='score'>0</span></div>
+<div class='badge' style='color: #fde047;'>🪙 VÀNG: <span id='coins'>0</span></div>
+<div class='badge' style='color: #f43f5e;'>🌲 RỪNG ĐÊM</div>
+</div>
+<div id='menu'>
+<h1 style='color: #38bdf8; margin-bottom: 10px; text-shadow: 0 0 15px #0284c7;'>RỪNG ĐÊM: ĐƯỜNG THẲNG</h1>
+<p style='max-width: 450px; color: #94a3b8; font-size: 15px; line-height: 1.5;'>
+Âm thanh sống động, nhân vật chuyển động chân thực!<br>
+Dùng phím <b>Mũi tên Lên</b> để nhảy, <b>Trái / Phải</b> để đổi làn.
+</p>
+<button class='play-btn' onclick='startTheGame()'>BẮT ĐẦU CHƠI</button>
+</div>
+<canvas id='cvs' width='800' height='500'></canvas>
+</div>
+<script>
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+}
+function playSound(type) {
+  if (!audioCtx) return;
+  try {
+    let osc = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    let now = audioCtx.currentTime;
+    if (type === 'coin') {
+      osc.type = 'sine'; osc.frequency.setValueAtTime(587.33, now);
+      osc.frequency.setValueAtTime(880, now + 0.08);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+      osc.start(now); osc.stop(now + 0.25);
+    } else if (type === 'jump') {
+      osc.type = 'triangle'; osc.frequency.setValueAtTime(200, now);
+      osc.frequency.exponentialRampToValueAtTime(450, now + 0.15);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+      osc.start(now); osc.stop(now + 0.15);
+    } else if (type === 'over') {
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, now);
+      osc.frequency.linearRampToValueAtTime(70, now + 0.4);
+      gain.gain.setValueAtTime(0.4, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+      osc.start(now); osc.stop(now + 0.4);
+    }
+  } catch(e) {}
+}
+const cvs = document.getElementById('cvs');
+const ctx = cvs.getContext('2d');
+let playing = false, score = 0, coins = 0, speed = 3.5, timer = 0, frameCount = 0, currentMY = 460;
+const lanes = [280, 400, 520];
+let currentLane = 1, jumpY = 0, jumpVY = 0, isJumping = false;
+let obstacles = [], coinList = [], floatTexts = [], roadOffset = 0;
+window.addEventListener('keydown', (e) => {
+  if (!playing) return;
+  if (e.code === 'ArrowLeft') { if (currentLane > 0) currentLane--; e.preventDefault(); }
+  else if (e.code === 'ArrowRight') { if (currentLane < 2) currentLane++; e.preventDefault(); }
+  else if (e.code === 'ArrowUp') { if (!isJumping) { isJumping = true; jumpVY = -11; playSound('jump'); } e.preventDefault(); }
+});
+function startTheGame() {
+  initAudio();
+  playing = true; score = 0; coins = 0; speed = 3.5; currentLane = 1; jumpY = 0; isJumping = false; frameCount = 0; currentMY = 460; obstacles = []; coinList = []; floatTexts = [];
+  document.getElementById('menu').style.display = 'none';
+}
+function spawnObjects() {
+  if (!playing) return;
+  let lane = Math.floor(Math.random() * 3);
+  if (Math.random() < 0.6) {
+    let types = ['rock', 'log', 'tree'];
+    obstacles.push({ lane: lane, y: -50, type: types[Math.floor(Math.random() * types.length)] });
+  } else { coinList.push({ lane: lane, y: -50 }); }
+}
+setInterval(spawnObjects, 1600);
+"""
+
+# Phần 2: Logic Game, Render và Vòng lặp chính
+part2 = """
+function updateGame() {
+  if (!playing) return;
+  score++; frameCount++; timer += 0.15; speed = 3.5 + Math.floor(score / 400) * 0.2; roadOffset += speed;
+  if (isJumping) { jumpY += jumpVY; jumpVY += 0.55; if (jumpY >= 0) { jumpY = 0; isJumping = false; } }
+  for (let i = floatTexts.length - 1; i >= 0; i--) {
+    let ft = floatTexts[i]; ft.y += ft.vy; ft.alpha -= 0.025; if (ft.alpha <= 0) floatTexts.splice(i, 1);
+  }
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    let obs = obstacles[i]; obs.y += speed;
+    if (obs.y >= 350 && obs.y <= 420 && obs.lane === currentLane) {
+      if (!(obs.type === 'log' && isJumping && jumpY < -35)) { playing = false; playSound('over'); }
+    }
+    if (obs.y > 550) obstacles.splice(i, 1);
+  }
+  for (let i = coinList.length - 1; i >= 0; i--) {
+    let c = coinList[i]; c.y += speed;
+    if (c.y >= 350 && c.y <= 420 && c.lane === currentLane && jumpY > -45) {
+      coins++; playSound('coin');
+      floatTexts.push({ x: lanes[c.lane], y: 360, text: '+1coin', alpha: 1.0, vy: -2 });
+      coinList.splice(i, 1); continue;
+    }
+    if (c.y > 550) coinList.splice(i, 1);
+  }
+}
+function renderGame() {
+  ctx.clearRect(0, 0, cvs.width, cvs.height);
+  let skyGrad = ctx.createLinearGradient(0, 0, 0, 500);
+  skyGrad.addColorStop(0, '#020617'); skyGrad.addColorStop(1, '#0f172a');
+  ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, cvs.width, 500);
+  ctx.fillStyle = '#f1f5f9'; ctx.beginPath(); ctx.arc(700, 70, 30, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#1e293b'; ctx.fillRect(200, 0, 400, 500);
+  ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(200, 0); ctx.lineTo(200, 500); ctx.moveTo(600, 0); ctx.lineTo(600, 500); ctx.stroke();
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)'; ctx.lineWidth = 2; ctx.setLineDash([15, 15]);
+  ctx.beginPath(); ctx.moveTo(333, roadOffset % 500 - 500); ctx.lineTo(333, 500);
+  ctx.moveTo(466, roadOffset % 500 - 500); ctx.lineTo(466, 500); ctx.stroke(); ctx.setLineDash([]);
+  for (let i = 0; i < 10; i++) {
+    let tY = (i * 120 + roadOffset * 1.5) % 600 - 50;
+    ctx.fillStyle = '#064e3b'; ctx.beginPath(); ctx.arc(100, tY, 35, 0, Math.PI*2); ctx.arc(700, tY, 35, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#022c22'; ctx.fillRect(92, tY + 15, 16, 40); ctx.fillRect(692, tY + 15, 16, 40);
+  }
+  obstacles.forEach(o => {
+    let targetX = lanes[o.lane];
+    if (o.type === 'rock') {
+      ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(targetX, o.y, 35, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#94a3b8'; ctx.beginPath(); ctx.arc(targetX - 6, o.y - 6, 15, 0, Math.PI*2); ctx.fill();
+    } else if (o.type === 'log') {
+      ctx.fillStyle = '#78350f'; ctx.fillRect(targetX - 50, o.y - 12, 100, 24);
+      ctx.fillStyle = '#15803d'; ctx.beginPath(); ctx.arc(targetX - 25, o.y - 6, 16, 0, Math.PI*2); ctx.fill();
+    } else if (o.type === 'tree') {
+      ctx.fillStyle = '#451a03'; ctx.fillRect(targetX - 12, o.y - 45, 24, 50);
+      ctx.fillStyle = '#16a34a'; ctx.beginPath(); ctx.arc(targetX, o.y - 50, 32, 0, Math.PI*2); ctx.fill();
+    }
+  });
+  coinList.forEach(c => {
+    let targetX = lanes[c.lane];
+    let bounce = Math.sin(timer * 5) * 5;
+    ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(targetX, c.y + bounce, 18, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 3; ctx.stroke();
+  });
+  floatTexts.forEach(ft => {
+    ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = '#fde047'; ctx.font = 'bold 20px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
+  });
+  let pX = lanes[currentLane], pY = 385 + jumpY;
+  let armCycle = Math.sin(timer * 0.5);
+  let legCycle = Math.cos(timer * 0.5);
+  ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.beginPath(); ctx.ellipse(pX, pY + 38, 24, 9, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(pX - 10, pY + 15 + legCycle * 14, 8, 22);
+  ctx.fillRect(pX + 2, pY + 15 - legCycle * 14, 8, 22);
+  ctx.fillStyle = '#475569';
+  ctx.beginPath(); ctx.arc(pX - 6, pY + 36 + legCycle * 14, 5, 0, Math.PI*2);
+  ctx.arc(pX + 6, pY + 36 - legCycle * 14, 5, 0, Math.PI*2); ctx.fill();
+  let bodyGrad = ctx.createLinearGradient(pX - 16, pY - 30, pX + 16, pY + 20);
+  bodyGrad.addColorStop(0, '#94a3b8'); bodyGrad.addColorStop(1, '#64748b');
+  ctx.fillStyle = bodyGrad; ctx.fillRect(pX - 16, pY - 30, 32, 48);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.beginPath(); ctx.arc(pX, pY - 22, 12, Math.PI, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(pX - 4, pY - 18); ctx.lineTo(pX - 6, pY - 8);
+  ctx.moveTo(pX + 4, pY - 18); ctx.lineTo(pX + 6, pY - 8); ctx.stroke();
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(pX - 24, pY - 25 - armCycle * 12, 8, 24);
+  ctx.fillRect(pX + 16, pY - 25 + armCycle * 12, 8, 24);
+  ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(pX, pY - 42, 14, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#334155'; ctx.fillRect(pX - 14, pY - 52, 28, 10);
+  let targetMY = (frameCount > 120) ? 520 : 460;
+  currentMY += (targetMY - currentMY) * 0.05;
+  let mX = pX, mY = currentMY + Math.sin(timer * 0.6) * 6;
+  ctx.fillStyle = '#22c55e';
+  ctx.beginPath(); ctx.moveTo(mX, mY - 60); ctx.bezierCurveTo(mX + 45, mY - 40, mX + 50, mY + 10, mX + 30, mY + 40);
+  ctx.bezierCurveTo(mX + 15, mY + 55, mX - 15, mY + 55, mX - 30, mY + 40);
+  ctx.bezierCurveTo(mX - 50, mY + 10, mX - 45, mY - 40, mX, mY - 60); ctx.fill();
+  ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(mX, mY - 60); ctx.quadraticCurveTo(mX + 10, mY - 80, mX + 5, mY - 90);
+  ctx.moveTo(mX + 2, mY - 70); ctx.quadraticCurveTo(mX + 15, mY - 85, mX + 20, mY - 88); ctx.stroke();
+  ctx.strokeStyle = '#14532d'; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(mX - 32, mY - 30); ctx.lineTo(mX - 5, mY - 20);
+  ctx.moveTo(mX + 32, mY - 30); ctx.lineTo(mX + 5, mY - 20); ctx.stroke();
+  ctx.fillStyle = '#fef08a';
+  ctx.beginPath(); ctx.ellipse(mX - 18, mY - 20, 10, 6, -0.2, 0, Math.PI * 2);
+  ctx.ellipse(mX + 18, mY - 20, 10, 6, 0.2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath(); ctx.arc(mX - 16, mY - 20, 3, 0, Math.PI * 2); ctx.arc(mX + 20, mY - 20, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#14532d'; ctx.beginPath(); ctx.arc(mX, mY - 8, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#14532d'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(mX - 18, mY + 10); ctx.quadraticCurveTo(mX, mY + 22, mX + 20, mY + 8); ctx.stroke();
+  if (!playing && score > 0) {
+    ctx.fillStyle = 'rgba(3, 7, 18, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#f43f5e'; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('BẠN ĐÃ BỊ QUÁI VẬT TÚM TÓC!', cvs.width / 2, 180);
+    ctx.fillStyle = '#fde047'; ctx.font = '22px monospace'; ctx.fillText('⭐ Điểm: ' + score + '  |  🪙 Vàng: ' + coins, cvs.width / 2, 240);
+    ctx.fillStyle = '#94a3b8'; ctx.font = '16px monospace'; ctx.fillText('Nhấn nút bên dưới để chơi lại', cvs.width / 2, 300);
+    document.getElementById('menu').style.display = 'flex';
+    document.getElementById('menu').querySelector('h1').innerText = 'THUA MẤT RỒI!';
+    document.querySelector('.play-btn').innerText = 'CHƠI LẠI NGAY';
+  }
+  document.getElementById('score').innerText = score;
+  document.getElementById('coins').innerText = coins;
+}
+function mainLoop() {
+  try { updateGame(); renderGame(); } catch(err) { console.error(err); }
+  requestAnimationFrame(mainLoop);
+}
+mainLoop();
+</script>
+</body>
+</html>
+"""
+
+game_code = part1 + part2
+components.html(game_code, height=580, scrolling=False)
