@@ -29,7 +29,7 @@ st.markdown("""
 
 st.markdown("<h1>🌲 CHẠY TRỐN QUÁI VẬT - RỪNG ĐÊM 🌙</h1>", unsafe_allow_html=True)
 
-# Hướng dẫn điều khiển cho cả máy tính và điện thoại
+# Hướng dẫn điều khiển trên điện thoại và máy tính
 with st.container():
     st.markdown("""
     <style>
@@ -52,11 +52,11 @@ with st.container():
             <li><b>Điện thoại:</b> Sử dụng các nút bấm ảo phía dưới màn hình hoặc vuốt màn hình.</li>
             <li><b>Máy tính:</b> Dùng các phím <b>Mũi tên</b> (Lên để nhảy, Trái/Phải để đổi làn).</li>
         </ul>
-        <div class="tip">💡 Mẹo: Đã tối ưu hóa hoàn toàn để chơi mượt mà trên điện thoại!</div>
+        <div class="tip">💡 Mẹo: Hỗ trợ cảm ứng hoàn hảo, quái vật Grinch lùi lại sau 2 giây chạy!</div>
     </div>
     """, unsafe_allow_html=True)
 
-# Phần 1: Giao diện HTML, CSS, Touch Controls & Audio API
+# Phần 1: Giao diện HTML, CSS, Cảm ứng di động & Khởi tạo Audio API
 part1 = """<!DOCTYPE html>
 <html lang='vi'>
 <head>
@@ -153,7 +153,6 @@ window.addEventListener('keydown', (e) => {
   else if (e.code === 'ArrowUp') { goJump(); e.preventDefault(); }
 });
 
-// Hỗ trợ cảm ứng vuốt màn hình (Swipe)
 let touchStartX = 0, touchStartY = 0;
 cvs.addEventListener('touchstart', (e) => {
   touchStartX = e.changedTouches[0].screenX;
@@ -162,10 +161,8 @@ cvs.addEventListener('touchstart', (e) => {
 
 cvs.addEventListener('touchend', (e) => {
   if (!playing) return;
-  let touchEndX = e.changedTouches[0].screenX;
-  let touchEndY = e.changedTouches[0].screenY;
-  let diffX = touchEndX - touchStartX;
-  let diffY = touchEndY - touchStartY;
+  let diffX = e.changedTouches[0].screenX - touchStartX;
+  let diffY = e.changedTouches[0].screenY - touchStartY;
   if (Math.abs(diffX) > Math.abs(diffY)) {
     if (diffX > 30) goRight();
     else if (diffX < -30) goLeft();
@@ -248,4 +245,80 @@ function renderGame() {
   });
   coinList.forEach(c => {
     let targetX = lanes[c.lane];
-    let bounce = Math.sin(timer * 5
+    let bounce = Math.sin(timer * 5) * 5;
+    ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(targetX, c.y + bounce, 18, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 3; ctx.stroke();
+  });
+  floatTexts.forEach(ft => {
+    ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = '#fde047'; ctx.font = 'bold 20px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
+  });
+  let pX = lanes[currentLane], pY = 385 + jumpY;
+  let armCycle = Math.sin(timer * 0.5);
+  let legCycle = Math.cos(timer * 0.5);
+  ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.beginPath(); ctx.ellipse(pX, pY + 38, 24, 9, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(pX - 10, pY + 15 + legCycle * 14, 8, 22);
+  ctx.fillRect(pX + 2, pY + 15 - legCycle * 14, 8, 22);
+  ctx.fillStyle = '#475569';
+  ctx.beginPath(); ctx.arc(pX - 6, pY + 36 + legCycle * 14, 5, 0, Math.PI*2);
+  ctx.arc(pX + 6, pY + 36 - legCycle * 14, 5, 0, Math.PI*2); ctx.fill();
+  let bodyGrad = ctx.createLinearGradient(pX - 16, pY - 30, pX + 16, pY + 20);
+  bodyGrad.addColorStop(0, '#94a3b8'); bodyGrad.addColorStop(1, '#64748b');
+  ctx.fillStyle = bodyGrad; ctx.fillRect(pX - 16, pY - 30, 32, 48);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.beginPath(); ctx.arc(pX, pY - 22, 12, Math.PI, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(pX - 4, pY - 18); ctx.lineTo(pX - 6, pY - 8);
+  ctx.moveTo(pX + 4, pY - 18); ctx.lineTo(pX + 6, pY - 8); ctx.stroke();
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(pX - 24, pY - 25 - armCycle * 12, 8, 24);
+  ctx.fillRect(pX + 16, pY - 25 + armCycle * 12, 8, 24);
+  ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(pX, pY - 42, 14, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#334155'; ctx.fillRect(pX - 14, pY - 52, 28, 10);
+  let targetMY = (frameCount > 120) ? 520 : 460;
+  currentMY += (targetMY - currentMY) * 0.05;
+  let mX = pX, mY = currentMY + Math.sin(timer * 0.6) * 6;
+  ctx.fillStyle = '#22c55e';
+  ctx.beginPath(); ctx.moveTo(mX, mY - 60); ctx.bezierCurveTo(mX + 45, mY - 40, mX + 50, mY + 10, mX + 30, mY + 40);
+  ctx.bezierCurveTo(mX + 15, mY + 55, mX - 15, mY + 55, mX - 30, mY + 40);
+  ctx.bezierCurveTo(mX - 50, mY + 10, mX - 45, mY - 40, mX, mY - 60); ctx.fill();
+  ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(mX, mY - 60); ctx.quadraticCurveTo(mX + 10, mY - 80, mX + 5, mY - 90);
+  ctx.moveTo(mX + 2, mY - 70); ctx.quadraticCurveTo(mX + 15, mY - 85, mX + 20, mY - 88); ctx.stroke();
+  ctx.strokeStyle = '#14532d'; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(mX - 32, mY - 30); ctx.lineTo(mX - 5, mY - 20);
+  ctx.moveTo(mX + 32, mY - 30); ctx.lineTo(mX + 5, mY - 20); ctx.stroke();
+  ctx.fillStyle = '#fef08a';
+  ctx.beginPath(); ctx.ellipse(mX - 18, mY - 20, 10, 6, -0.2, 0, Math.PI * 2);
+  ctx.ellipse(mX + 18, mY - 20, 10, 6, 0.2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath(); ctx.arc(mX - 16, mY - 20, 3, 0, Math.PI * 2); ctx.arc(mX + 20, mY - 20, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#14532d'; ctx.beginPath(); ctx.arc(mX, mY - 8, 4, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#14532d'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(mX - 18, mY + 10); ctx.quadraticCurveTo(mX, mY + 22, mX + 20, mY + 8); ctx.stroke();
+  if (!playing && score > 0) {
+    ctx.fillStyle = 'rgba(3, 7, 18, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = '#f43f5e'; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('BẠN ĐÃ BỊ QUÁI VẬT TÚM TÓC!', cvs.width / 2, 180);
+    ctx.fillStyle = '#fde047'; ctx.font = '22px monospace'; ctx.fillText('⭐ Điểm: ' + score + '  |  🪙 Vàng: ' + coins, cvs.width / 2, 240);
+    ctx.fillStyle = '#94a3b8'; ctx.font = '16px monospace'; ctx.fillText('Nhấn nút bên dưới để chơi lại', cvs.width / 2, 300);
+    document.getElementById('menu').style.display = 'flex';
+    document.getElementById('menu').querySelector('h1').innerText = 'THUA MẤT RỒI!';
+    document.querySelector('.play-btn').innerText = 'CHƠI LẠI NGAY';
+  }
+  document.getElementById('score').innerText = score;
+  document.getElementById('coins').innerText = coins;
+}
+function mainLoop() {
+  try { updateGame(); renderGame(); } catch(err) { console.error(err); }
+  requestAnimationFrame(mainLoop);
+}
+mainLoop();
+</script>
+</body>
+</html>
+"""
+
+game_code = part1 + part2
+components.html(game_code, height=640, scrolling=False)
