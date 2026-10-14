@@ -52,11 +52,11 @@ with st.container():
             <li><b>Mũi tên Trái (⬅️):</b> Chuyển sang làn TRÁI.</li>
             <li><b>Mũi tên Phải (➡️):</b> Chuyển sang làn PHẢI.</li>
         </ul>
-        <div class="tip">💡 Mẹo: Con đường thẳng, tốc độ chậm rãi, nhân vật vung tay chạy bộ và quái vật vô cùng đáng sợ!</div>
+        <div class="tip">💡 Mẹo: Quái vật phong cách The Grinch ranh mãnh bám đuổi sát phía sau!</div>
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML/JS hoàn chỉnh với đường thẳng, nhân vật khớp động và quái vật đáng sợ
+# Mã nguồn HTML/JS với quái vật phong cách Grinch
 game_code = (
     "<!DOCTYPE html>"
     "<html lang='vi'>"
@@ -190,14 +190,24 @@ game_code = (
     "  ctx.fillStyle = '#94a3b8'; ctx.fillRect(pX - 22, pY - 20 + armSwing, 8, 22); ctx.fillRect(pX + 14, pY - 20 - armSwing, 8, 22);"
     "  ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(pX, pY - 38, 14, 0, Math.PI*2); ctx.fill();"
     "  let mX = pX, mY = 460;"
-    "  ctx.fillStyle = '#065f46'; ctx.beginPath(); ctx.arc(mX, mY, 65, 0, Math.PI*2); ctx.fill();"
-    "  ctx.fillStyle = '#047857'; ctx.beginPath(); ctx.arc(mX, mY - 20, 45, 0, Math.PI*2); ctx.fill();"
-    "  ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(mX - 14, mY - 25, 8, 0, Math.PI*2); ctx.arc(mX + 14, mY - 25, 8, 0, Math.PI*2); ctx.fill();"
-    "  ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(mX - 14, mY - 25, 3, 0, Math.PI*2); ctx.arc(mX + 14, mY - 25, 3, 0, Math.PI*2); ctx.fill();"
-    "  ctx.fillStyle = '#fff';"
-    "  ctx.beginPath(); ctx.moveTo(mX - 18, mY - 5); ctx.lineTo(mX - 12, mY + 8); ctx.lineTo(mX - 6, mY - 5);"
-    "  ctx.moveTo(mX - 6, mY - 5); ctx.lineTo(mX, mY + 8); ctx.lineTo(mX + 6, mY - 5);"
-    "  ctx.moveTo(mX + 6, mY - 5); ctx.lineTo(mX + 12, mY + 8); ctx.lineTo(mX + 18, mY - 5); ctx.fill();"
+    "  ctx.fillStyle = '#22c55e';"
+    "  ctx.beginPath(); ctx.moveTo(mX, mY - 60); ctx.bezierCurveTo(mX + 45, mY - 40, mX + 50, mY + 10, mX + 30, mY + 40);"
+    "  ctx.bezierCurveTo(mX + 15, mY + 55, mX - 15, mY + 55, mX - 30, mY + 40);"
+    "  ctx.bezierCurveTo(mX - 50, mY + 10, mX - 45, mY - 40, mX, mY - 60); ctx.fill();"
+    "  ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 4;"
+    "  ctx.beginPath(); ctx.moveTo(mX, mY - 60); ctx.quadraticCurveTo(mX + 10, mY - 80, mX + 5, mY - 90);"
+    "  ctx.moveTo(mX + 2, mY - 70); ctx.quadraticCurveTo(mX + 15, mY - 85, mX + 20, mY - 88); ctx.stroke();"
+    "  ctx.strokeStyle = '#14532d'; ctx.lineWidth = 5;"
+    "  ctx.beginPath(); ctx.moveTo(mX - 32, mY - 30); ctx.lineTo(mX - 5, mY - 20);"
+    "  ctx.moveTo(mX + 32, mY - 30); ctx.lineTo(mX + 5, mY - 20); ctx.stroke();"
+    "  ctx.fillStyle = '#fef08a';"
+    "  ctx.beginPath(); ctx.ellipse(mX - 18, mY - 20, 10, 6, -0.2, 0, Math.PI * 2);"
+    "  ctx.ellipse(mX + 18, mY - 20, 10, 6, 0.2, 0, Math.PI * 2); ctx.fill();"
+    "  ctx.fillStyle = '#1e293b';"
+    "  ctx.beginPath(); ctx.arc(mX - 16, mY - 20, 3, 0, Math.PI * 2); ctx.arc(mX + 20, mY - 20, 3, 0, Math.PI * 2); ctx.fill();"
+    "  ctx.fillStyle = '#14532d'; ctx.beginPath(); ctx.arc(mX, mY - 8, 4, 0, Math.PI * 2); ctx.fill();"
+    "  ctx.strokeStyle = '#14532d'; ctx.lineWidth = 3;"
+    "  ctx.beginPath(); ctx.moveTo(mX - 18, mY + 10); ctx.quadraticCurveTo(mX, mY + 22, mX + 20, mY + 8); ctx.stroke();"
     "  if (!playing && score > 0) {"
     "    ctx.fillStyle = 'rgba(3, 7, 18, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);"
     "    ctx.fillStyle = '#f43f5e'; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';"
