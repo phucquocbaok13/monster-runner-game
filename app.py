@@ -54,7 +54,7 @@ with st.container():
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML, CSS và JavaScript an toàn tuyệt đối chống lỗi cú pháp
+# Mã nguồn HTML, CSS và JavaScript hoàn chỉnh
 game_html = [
     "<!DOCTYPE html>",
     "<html lang='vi'>",
@@ -206,8 +206,31 @@ game_html = [
     "      ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(targetX, o.y, 35, 0, Math.PI*2); ctx.fill();",
     "      ctx.fillStyle = '#94a3b8'; ctx.beginPath(); ctx.arc(targetX - 6, o.y - 6, 15, 0, Math.PI*2); ctx.fill();",
     "    } else if (o.type === 'log') {",
-    "      ctx.fillStyle = '#78350f'; ctx.fillRect(targetX - 50, o.y - 12, 100, 24);",
-    "      ctx.fillStyle = '#15803d'; ctx.beginPath(); ctx.arc(targetX - 25, o.y - 6, 16, 0, Math.PI*2); ctx.fill();",
+    "      ctx.save();",
+    "      let logGrad = ctx.createLinearGradient(targetX - 45, o.y - 14, targetX - 45, o.y + 14);",
+    "      logGrad.addColorStop(0, '#d97706');",
+    "      logGrad.addColorStop(0.5, '#b45309');",
+    "      logGrad.addColorStop(1, '#78350f');",
+    "      ctx.fillStyle = logGrad;",
+    "      ctx.beginPath();",
+    "      if (ctx.roundRect) { ctx.roundRect(targetX - 45, o.y - 12, 90, 24, 6); } else { ctx.rect(targetX - 45, o.y - 12, 90, 24); }",
+    "      ctx.fill();",
+    "      ctx.strokeStyle = '#451a03'; ctx.lineWidth = 2; ctx.stroke();",
+    "      ctx.strokeStyle = '#78350f'; ctx.lineWidth = 1.5;",
+    "      ctx.beginPath();",
+    "      ctx.moveTo(targetX - 30, o.y - 6); ctx.lineTo(targetX + 20, o.y - 6);",
+    "      ctx.moveTo(targetX - 20, o.y + 4); ctx.lineTo(targetX + 35, o.y + 4);",
+    "      ctx.stroke();",
+    "      ctx.fillStyle = '#fef08a';",
+    "      ctx.beginPath();",
+    "      ctx.ellipse(targetX - 45, o.y, 7, 12, 0, 0, Math.PI * 2);",
+    "      ctx.fill();",
+    "      ctx.strokeStyle = '#78350f'; ctx.lineWidth = 2; ctx.stroke();",
+    "      ctx.strokeStyle = '#b45309'; ctx.lineWidth = 1;",
+    "      ctx.beginPath();",
+    "      ctx.ellipse(targetX - 45, o.y, 3, 6, 0, 0, Math.PI * 2);",
+    "      ctx.stroke();",
+    "      ctx.restore();",
     "    } else if (o.type === 'tree') {",
     "      ctx.fillStyle = '#451a03'; ctx.fillRect(targetX - 12, o.y - 45, 24, 50);",
     "      ctx.fillStyle = '#16a34a'; ctx.beginPath(); ctx.arc(targetX, o.y - 50, 32, 0, Math.PI*2); ctx.fill();",
