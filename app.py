@@ -22,55 +22,58 @@ st.markdown("""
         text-align: center;
         color: #00ffff;
         text-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+        font-size: 24px;
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("<h1>🌲 CHẠY TRỐN QUÁI VẬT - RỪNG ĐÊM 🌙</h1>", unsafe_allow_html=True)
 
-# Hướng dẫn điều khiển chỉ dùng phím mũi tên
+# Hướng dẫn điều khiển cho cả máy tính và điện thoại
 with st.container():
     st.markdown("""
     <style>
     .box-hd {
         background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-        padding: 18px;
+        padding: 15px;
         border-radius: 10px;
         border: 2px solid #38bdf8;
         box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-        margin-bottom: 20px;
+        margin-bottom: 15px;
     }
-    .box-hd h3 { color: #38bdf8; margin-top: 0; }
-    .box-hd li { color: #f8fafc; font-size: 16px; margin-bottom: 6px; }
+    .box-hd h3 { color: #38bdf8; margin-top: 0; font-size: 16px; }
+    .box-hd li { color: #f8fafc; font-size: 14px; margin-bottom: 4px; }
     .box-hd b { color: #fde047; }
-    .tip { color: #34d399; font-weight: bold; margin-top: 8px; }
+    .tip { color: #34d399; font-weight: bold; margin-top: 6px; font-size: 14px; }
     </style>
     <div class="box-hd">
-        <h3>🎮 ĐIỀU KHIỂN TRÒ CHƠI:</h3>
+        <h3>🎮 HƯỚNG DẪN ĐIỀU KHIỂN:</h3>
         <ul>
-            <li><b>Mũi tên Lên (⬆️):</b> Nhảy lên tránh chướng ngại vật.</li>
-            <li><b>Mũi tên Trái (⬅️):</b> Chuyển sang làn TRÁI.</li>
-            <li><b>Mũi tên Phải (➡️):</b> Chuyển sang làn PHẢI.</li>
+            <li><b>Điện thoại:</b> Sử dụng các nút bấm ảo phía dưới màn hình hoặc vuốt màn hình.</li>
+            <li><b>Máy tính:</b> Dùng các phím <b>Mũi tên</b> (Lên để nhảy, Trái/Phải để đổi làn).</li>
         </ul>
-        <div class="tip">💡 Mẹo: Âm thanh sống động, nhân vật chạy chân thực và quái vật lùi lại sau 2 giây!</div>
+        <div class="tip">💡 Mẹo: Đã tối ưu hóa hoàn toàn để chơi mượt mà trên điện thoại!</div>
     </div>
     """, unsafe_allow_html=True)
 
-# Phần 1: Giao diện HTML, CSS và Khởi tạo Audio API
+# Phần 1: Giao diện HTML, CSS, Touch Controls & Audio API
 part1 = """<!DOCTYPE html>
 <html lang='vi'>
 <head>
 <meta charset='UTF-8'>
-<title>Night Forest Straight Road</title>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+<title>Night Forest Mobile</title>
 <style>
-body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: monospace; color: white; overflow: hidden; }
-#game-wrap { position: relative; box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); border-radius: 8px; overflow: hidden; }
-canvas { display: block; background: #030712; }
-#hud { position: absolute; top: 12px; left: 15px; right: 15px; display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; text-shadow: 2px 2px #000; pointer-events: none; }
-.badge { background: rgba(15, 23, 42, 0.85); padding: 6px 14px; border-radius: 6px; border: 1px solid #38bdf8; }
-#menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 10; }
-.play-btn { background: #0284c7; color: white; border: none; padding: 14px 32px; font-size: 20px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; box-shadow: 0 0 15px #38bdf8; transition: 0.2s; }
-.play-btn:hover { background: #38bdf8; color: #0f172a; transform: scale(1.05); }
+body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: monospace; color: white; overflow: hidden; touch-action: none; }
+#game-wrap { position: relative; width: 100%; max-width: 800px; box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); border-radius: 8px; overflow: hidden; }
+canvas { display: block; width: 100%; height: auto; background: #030712; }
+#hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; text-shadow: 2px 2px #000; pointer-events: none; }
+.badge { background: rgba(15, 23, 42, 0.85); padding: 5px 10px; border-radius: 6px; border: 1px solid #38bdf8; }
+#menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 10; padding: 20px; box-sizing: border-box; }
+.play-btn { background: #0284c7; color: white; border: none; padding: 12px 28px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 15px; box-shadow: 0 0 15px #38bdf8; }
+.controls-bar { display: flex; justify-content: center; gap: 15px; width: 100%; max-width: 800px; margin-top: 12px; }
+.ctrl-btn { flex: 1; background: #0f172a; color: #38bdf8; border: 2px solid #38bdf8; padding: 16px 0; font-size: 20px; font-weight: bold; border-radius: 10px; text-align: center; user-select: none; cursor: pointer; box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3); }
+.ctrl-btn:active { background: #38bdf8; color: #0f172a; transform: scale(0.95); }
 </style>
 </head>
 <body>
@@ -81,14 +84,19 @@ canvas { display: block; background: #030712; }
 <div class='badge' style='color: #f43f5e;'>🌲 RỪNG ĐÊM</div>
 </div>
 <div id='menu'>
-<h1 style='color: #38bdf8; margin-bottom: 10px; text-shadow: 0 0 15px #0284c7;'>RỪNG ĐÊM: ĐƯỜNG THẲNG</h1>
-<p style='max-width: 450px; color: #94a3b8; font-size: 15px; line-height: 1.5;'>
-Âm thanh sống động, nhân vật chuyển động chân thực!<br>
-Dùng phím <b>Mũi tên Lên</b> để nhảy, <b>Trái / Phải</b> để đổi làn.
+<h1 style='color: #38bdf8; margin-bottom: 10px; font-size: 22px; text-shadow: 0 0 15px #0284c7;'>RỪNG ĐÊM: ĐƯỜNG THẲNG</h1>
+<p style='color: #94a3b8; font-size: 14px; line-height: 1.4;'>
+Sẵn sàng chạy trốn quái vật Grinch trên điện thoại!<br>
+Sử dụng các nút bấm ảo bên dưới hoặc vuốt màn hình.
 </p>
 <button class='play-btn' onclick='startTheGame()'>BẮT ĐẦU CHƠI</button>
 </div>
 <canvas id='cvs' width='800' height='500'></canvas>
+</div>
+<div class='controls-bar'>
+<div class='ctrl-btn' onclick='goLeft()'>⬅️ TRÁI</div>
+<div class='ctrl-btn' onclick='goJump()'>⬆️ NHẢY</div>
+<div class='ctrl-btn' onclick='goRight()'>➡️ PHẢI</div>
 </div>
 <script>
 let audioCtx = null;
@@ -129,12 +137,43 @@ let playing = false, score = 0, coins = 0, speed = 3.5, timer = 0, frameCount = 
 const lanes = [280, 400, 520];
 let currentLane = 1, jumpY = 0, jumpVY = 0, isJumping = false;
 let obstacles = [], coinList = [], floatTexts = [], roadOffset = 0;
+
+function goLeft() { if (playing && currentLane > 0) currentLane--; }
+function goRight() { if (playing && currentLane < 2) currentLane++; }
+function goJump() {
+  if (playing && !isJumping) {
+    isJumping = true; jumpVY = -11; playSound('jump');
+  }
+}
+
 window.addEventListener('keydown', (e) => {
   if (!playing) return;
-  if (e.code === 'ArrowLeft') { if (currentLane > 0) currentLane--; e.preventDefault(); }
-  else if (e.code === 'ArrowRight') { if (currentLane < 2) currentLane++; e.preventDefault(); }
-  else if (e.code === 'ArrowUp') { if (!isJumping) { isJumping = true; jumpVY = -11; playSound('jump'); } e.preventDefault(); }
+  if (e.code === 'ArrowLeft') { goLeft(); e.preventDefault(); }
+  else if (e.code === 'ArrowRight') { goRight(); e.preventDefault(); }
+  else if (e.code === 'ArrowUp') { goJump(); e.preventDefault(); }
 });
+
+// Hỗ trợ cảm ứng vuốt màn hình (Swipe)
+let touchStartX = 0, touchStartY = 0;
+cvs.addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+}, {passive: true});
+
+cvs.addEventListener('touchend', (e) => {
+  if (!playing) return;
+  let touchEndX = e.changedTouches[0].screenX;
+  let touchEndY = e.changedTouches[0].screenY;
+  let diffX = touchEndX - touchStartX;
+  let diffY = touchEndY - touchStartY;
+  if (Math.abs(diffX) > Math.abs(diffY)) {
+    if (diffX > 30) goRight();
+    else if (diffX < -30) goLeft();
+  } else {
+    if (diffY < -30) goJump();
+  }
+}, {passive: true});
+
 function startTheGame() {
   initAudio();
   playing = true; score = 0; coins = 0; speed = 3.5; currentLane = 1; jumpY = 0; isJumping = false; frameCount = 0; currentMY = 460; obstacles = []; coinList = []; floatTexts = [];
@@ -151,7 +190,7 @@ function spawnObjects() {
 setInterval(spawnObjects, 1600);
 """
 
-# Phần 2: Logic Game, Render và Vòng lặp chính
+# Phần 2: Logic Game, Render nhân vật, quái vật Grinch và vòng lặp
 part2 = """
 function updateGame() {
   if (!playing) return;
@@ -209,80 +248,4 @@ function renderGame() {
   });
   coinList.forEach(c => {
     let targetX = lanes[c.lane];
-    let bounce = Math.sin(timer * 5) * 5;
-    ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.arc(targetX, c.y + bounce, 18, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 3; ctx.stroke();
-  });
-  floatTexts.forEach(ft => {
-    ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = '#fde047'; ctx.font = 'bold 20px monospace'; ctx.textAlign = 'center';
-    ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
-  });
-  let pX = lanes[currentLane], pY = 385 + jumpY;
-  let armCycle = Math.sin(timer * 0.5);
-  let legCycle = Math.cos(timer * 0.5);
-  ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.beginPath(); ctx.ellipse(pX, pY + 38, 24, 9, 0, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(pX - 10, pY + 15 + legCycle * 14, 8, 22);
-  ctx.fillRect(pX + 2, pY + 15 - legCycle * 14, 8, 22);
-  ctx.fillStyle = '#475569';
-  ctx.beginPath(); ctx.arc(pX - 6, pY + 36 + legCycle * 14, 5, 0, Math.PI*2);
-  ctx.arc(pX + 6, pY + 36 - legCycle * 14, 5, 0, Math.PI*2); ctx.fill();
-  let bodyGrad = ctx.createLinearGradient(pX - 16, pY - 30, pX + 16, pY + 20);
-  bodyGrad.addColorStop(0, '#94a3b8'); bodyGrad.addColorStop(1, '#64748b');
-  ctx.fillStyle = bodyGrad; ctx.fillRect(pX - 16, pY - 30, 32, 48);
-  ctx.fillStyle = '#cbd5e1';
-  ctx.beginPath(); ctx.arc(pX, pY - 22, 12, Math.PI, Math.PI*2); ctx.fill();
-  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(pX - 4, pY - 18); ctx.lineTo(pX - 6, pY - 8);
-  ctx.moveTo(pX + 4, pY - 18); ctx.lineTo(pX + 6, pY - 8); ctx.stroke();
-  ctx.fillStyle = '#475569';
-  ctx.fillRect(pX - 24, pY - 25 - armCycle * 12, 8, 24);
-  ctx.fillRect(pX + 16, pY - 25 + armCycle * 12, 8, 24);
-  ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(pX, pY - 42, 14, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#334155'; ctx.fillRect(pX - 14, pY - 52, 28, 10);
-  let targetMY = (frameCount > 120) ? 520 : 460;
-  currentMY += (targetMY - currentMY) * 0.05;
-  let mX = pX, mY = currentMY + Math.sin(timer * 0.6) * 6;
-  ctx.fillStyle = '#22c55e';
-  ctx.beginPath(); ctx.moveTo(mX, mY - 60); ctx.bezierCurveTo(mX + 45, mY - 40, mX + 50, mY + 10, mX + 30, mY + 40);
-  ctx.bezierCurveTo(mX + 15, mY + 55, mX - 15, mY + 55, mX - 30, mY + 40);
-  ctx.bezierCurveTo(mX - 50, mY + 10, mX - 45, mY - 40, mX, mY - 60); ctx.fill();
-  ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 4;
-  ctx.beginPath(); ctx.moveTo(mX, mY - 60); ctx.quadraticCurveTo(mX + 10, mY - 80, mX + 5, mY - 90);
-  ctx.moveTo(mX + 2, mY - 70); ctx.quadraticCurveTo(mX + 15, mY - 85, mX + 20, mY - 88); ctx.stroke();
-  ctx.strokeStyle = '#14532d'; ctx.lineWidth = 5;
-  ctx.beginPath(); ctx.moveTo(mX - 32, mY - 30); ctx.lineTo(mX - 5, mY - 20);
-  ctx.moveTo(mX + 32, mY - 30); ctx.lineTo(mX + 5, mY - 20); ctx.stroke();
-  ctx.fillStyle = '#fef08a';
-  ctx.beginPath(); ctx.ellipse(mX - 18, mY - 20, 10, 6, -0.2, 0, Math.PI * 2);
-  ctx.ellipse(mX + 18, mY - 20, 10, 6, 0.2, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#1e293b';
-  ctx.beginPath(); ctx.arc(mX - 16, mY - 20, 3, 0, Math.PI * 2); ctx.arc(mX + 20, mY - 20, 3, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#14532d'; ctx.beginPath(); ctx.arc(mX, mY - 8, 4, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = '#14532d'; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.moveTo(mX - 18, mY + 10); ctx.quadraticCurveTo(mX, mY + 22, mX + 20, mY + 8); ctx.stroke();
-  if (!playing && score > 0) {
-    ctx.fillStyle = 'rgba(3, 7, 18, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
-    ctx.fillStyle = '#f43f5e'; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';
-    ctx.fillText('BẠN ĐÃ BỊ QUÁI VẬT TÚM TÓC!', cvs.width / 2, 180);
-    ctx.fillStyle = '#fde047'; ctx.font = '22px monospace'; ctx.fillText('⭐ Điểm: ' + score + '  |  🪙 Vàng: ' + coins, cvs.width / 2, 240);
-    ctx.fillStyle = '#94a3b8'; ctx.font = '16px monospace'; ctx.fillText('Nhấn nút bên dưới để chơi lại', cvs.width / 2, 300);
-    document.getElementById('menu').style.display = 'flex';
-    document.getElementById('menu').querySelector('h1').innerText = 'THUA MẤT RỒI!';
-    document.querySelector('.play-btn').innerText = 'CHƠI LẠI NGAY';
-  }
-  document.getElementById('score').innerText = score;
-  document.getElementById('coins').innerText = coins;
-}
-function mainLoop() {
-  try { updateGame(); renderGame(); } catch(err) { console.error(err); }
-  requestAnimationFrame(mainLoop);
-}
-mainLoop();
-</script>
-</body>
-</html>
-"""
-
-game_code = part1 + part2
-components.html(game_code, height=580, scrolling=False)
+    let bounce = Math.sin(timer * 5
