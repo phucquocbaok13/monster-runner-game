@@ -48,15 +48,15 @@ with st.container():
     <div class="box-hd">
         <h3>🎮 ĐIỀU KHIỂN TRÒ CHƠI:</h3>
         <ul>
-            <li><b>Phím W:</b> Nhảy lên tránh chướng ngại vật (Cây đổ ngang).</li>
+            <li><b>Phím W:</b> Nhảy lên tránh chướng ngại vật lớn.</li>
             <li><b>Phím A:</b> Chuyển sang làn TRÁI.</li>
             <li><b>Phím D:</b> Chuyển sang làn PHẢI.</li>
         </ul>
-        <div class="tip">💡 Mẹo: Nhân vật mặc áo hoodie xám sáng rõ và quái vật xanh neon cực kỳ nổi bật ở ngay phía trước màn hình!</div>
+        <div class="tip">💡 Mẹo: Nhân vật bứt tốc vượt trội, đồng xu to kèm hiệu ứng bay tiền vàng, đá và cây cối sắc nét chi tiết 3D!</div>
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML/JS hoàn toàn mới, tối ưu hóa chống lỗi và hiển thị chắc chắn nhân vật
+# Mã nguồn HTML/JS hoàn chỉnh
 game_code = """<!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -139,14 +139,14 @@ game_code = """<!DOCTYPE html>
     <div id="hud">
         <div class="badge">⭐ ĐIỂM: <span id="score">0</span></div>
         <div class="badge" style="color: #fde047;">🪙 VÀNG: <span id="coins">0</span></div>
-        <div class="badge" style="color: #f43f5e;">⚠️ QUÁI VẬT: SÁT GÁY</div>
+        <div class="badge" style="color: #f43f5e;">⚡ TỐC ĐỘ BỨT PHÁ</div>
     </div>
 
     <div id="menu">
-        <h1 style="color: #38bdf8; margin-bottom: 10px; text-shadow: 0 0 15px #0284c7;">RỪNG ĐÊM 3D: CHẠY TRỐN</h1>
+        <h1 style="color: #38bdf8; margin-bottom: 10px; text-shadow: 0 0 15px #0284c7;">RỪNG ĐÊM 3D: BỨT TỐC</h1>
         <p style="max-width: 450px; color: #94a3b8; font-size: 15px; line-height: 1.5;">
-            Nhân vật áo hoodie xám và quái vật xanh neon xuất hiện trực diện!<br>
-            Dùng phím <b>W</b> để nhảy, <b>A</b> và <b>D</b> để né tránh chướng ngại vật!
+            Nhân vật bứt tốc mạnh mẽ, thu thập đồng xu lớn kèm hiệu ứng!<br>
+            Dùng phím <b>W</b> để nhảy, <b>A</b> và <b>D</b> để né tránh chướng ngại vật khổng lồ!
         </p>
         <button class="play-btn" onclick="startTheGame()">BẮT ĐẦU CHƠI</button>
     </div>
@@ -161,7 +161,7 @@ const ctx = cvs.getContext('2d');
 let playing = false;
 let score = 0;
 let coins = 0;
-let speed = 5;
+let speed = 6;
 let timer = 0;
 
 const lanes = [260, 400, 540];
@@ -173,6 +173,7 @@ let isJumping = false;
 
 let obstacles = [];
 let coinList = [];
+let floatTexts = []; // Hiệu ứng chữ bay khi ăn xu
 let roadOffset = 0;
 
 window.addEventListener('keydown', (e) => {
@@ -183,7 +184,7 @@ window.addEventListener('keydown', (e) => {
         if (currentLane < 2) currentLane++;
     } else if ((e.code === 'KeyW' || e.code === 'ArrowUp') && !isJumping) {
         isJumping = true;
-        jumpVY = -12;
+        jumpVY = -13;
         e.preventDefault();
     }
 });
@@ -192,12 +193,13 @@ function startTheGame() {
     playing = true;
     score = 0;
     coins = 0;
-    speed = 5.5;
+    speed = 6.5;
     currentLane = 1;
     jumpY = 0;
     isJumping = false;
     obstacles = [];
     coinList = [];
+    floatTexts = [];
     document.getElementById('menu').style.display = 'none';
 }
 
@@ -212,31 +214,39 @@ function spawnObjects() {
         coinList.push({ lane: lane, z: 0.05 });
     }
 }
-setInterval(spawnObjects, 1300);
+setInterval(spawnObjects, 1200);
 
 function updateGame() {
     if (!playing) return;
 
     score++;
-    timer += 0.2;
-    speed = 5.5 + Math.floor(score / 350) * 0.4;
-    roadOffset += speed * 4;
+    timer += 0.25;
+    speed = 6.5 + Math.floor(score / 300) * 0.35;
+    roadOffset += speed * 4.5;
 
     if (isJumping) {
         jumpY += jumpVY;
-        jumpVY += 0.65;
+        jumpVY += 0.68;
         if (jumpY >= 0) {
             jumpY = 0;
             isJumping = false;
         }
     }
 
+    // Cập nhật hiệu ứng chữ bay
+    for (let i = floatTexts.length - 1; i >= 0; i--) {
+        let ft = floatTexts[i];
+        ft.y += ft.vy;
+        ft.alpha -= 0.03;
+        if (ft.alpha <= 0) floatTexts.splice(i, 1);
+    }
+
     for (let i = obstacles.length - 1; i >= 0; i--) {
         let obs = obstacles[i];
-        obs.z += speed * 0.0025;
+        obs.z += speed * 0.0028;
 
         if (obs.z >= 0.84 && obs.z <= 0.95 && obs.lane === currentLane) {
-            if (obs.type === 'log' && isJumping && jumpY < -35) {
+            if (obs.type === 'log' && isJumping && jumpY < -38) {
                 // Nhảy qua an toàn
             } else {
                 playing = false;
@@ -248,10 +258,13 @@ function updateGame() {
 
     for (let i = coinList.length - 1; i >= 0; i--) {
         let c = coinList[i];
-        c.z += speed * 0.0025;
+        c.z += speed * 0.0028;
 
-        if (c.z >= 0.84 && c.z <= 0.95 && c.lane === currentLane && jumpY > -45) {
+        if (c.z >= 0.84 && c.z <= 0.95 && c.lane === currentLane && jumpY > -50) {
             coins++;
+            let targetX = (c.lane === 0) ? 260 : (c.lane === 2) ? 540 : 400;
+            // Thêm hiệu ứng chữ bay +1 🪙
+            floatTexts.push({ x: targetX, y: 360, text: '+1 🪙', alpha: 1.0, vy: -2.5 });
             coinList.splice(i, 1);
             continue;
         }
@@ -279,109 +292,133 @@ function renderGame() {
 
     ctx.beginPath();
     ctx.moveTo(400, 160);
-    ctx.lineTo(100, 500);
-    ctx.lineTo(700, 500);
+    ctx.lineTo(80, 500);
+    ctx.lineTo(720, 500);
     ctx.closePath();
     ctx.fillStyle = '#1e293b';
     ctx.fill();
 
     ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(400, 160); ctx.lineTo(260, 500);
-    ctx.moveTo(400, 160); ctx.lineTo(540, 500);
+    ctx.moveTo(400, 160); ctx.lineTo(250, 500);
+    ctx.moveTo(400, 160); ctx.lineTo(550, 500);
     ctx.stroke();
 
     // 3. Hai hàng cây hai bên
     for (let i = -2; i < 8; i++) {
-        let tProg = (i * 0.2 + (roadOffset * 0.001)) % 1.0;
+        let tProg = (i * 0.2 + (roadOffset * 0.0012)) % 1.0;
         let tY = 160 + tProg * 340;
-        let lX = 400 - tProg * 380;
-        let rX = 400 + tProg * 380;
+        let lX = 400 - tProg * 400;
+        let rX = 400 + tProg * 400;
         let s = 0.2 + tProg * 0.8;
 
         ctx.fillStyle = '#334155';
-        ctx.fillRect(lX - 6*s, tY, 12*s, 40*s);
-        ctx.fillRect(rX - 6*s, tY, 12*s, 40*s);
+        ctx.fillRect(lX - 8*s, tY, 16*s, 48*s);
+        ctx.fillRect(rX - 8*s, tY, 16*s, 48*s);
 
         ctx.fillStyle = '#10b981';
-        ctx.beginPath(); ctx.arc(lX, tY - 10*s, 22*s, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(rX, tY - 10*s, 22*s, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(lX, tY - 12*s, 26*s, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(rX, tY - 12*s, 26*s, 0, Math.PI*2); ctx.fill();
     }
 
-    // 4. Vật thể & Tiền vàng
+    // 4. Vật thể (To lớn & chi tiết hơn) & Đồng xu to
     obstacles.forEach(o => {
         let z = o.z;
         let screenY = 160 + z * 340;
-        let sc = 0.2 + z * 0.8;
-        let targetX = (o.lane === 0) ? 400 - z * 300 : (o.lane === 2) ? 400 + z * 300 : 400;
+        let sc = 0.25 + z * 0.75;
+        let targetX = (o.lane === 0) ? 400 - z * 320 : (o.lane === 2) ? 400 + z * 320 : 400;
 
         if (o.type === 'rock') {
+            // Tảng đá lớn có vân & bóng
+            ctx.fillStyle = '#475569';
+            ctx.beginPath(); ctx.arc(targetX, screenY, 42*sc, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = '#94a3b8';
-            ctx.beginPath(); ctx.arc(targetX, screenY, 30*sc, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(targetX - 8*sc, screenY - 8*sc, 18*sc, 0, Math.PI*2); ctx.fill();
         } else if (o.type === 'log') {
-            ctx.fillStyle = '#a16207';
-            ctx.fillRect(targetX - 45*sc, screenY - 15*sc, 90*sc, 22*sc);
-        } else if (o.type === 'tree') {
+            // Cây đổ ngang to lớn chi tiết
             ctx.fillStyle = '#78350f';
-            ctx.fillRect(targetX - 12*sc, screenY - 45*sc, 24*sc, 50*sc);
+            ctx.fillRect(targetX - 60*sc, screenY - 20*sc, 120*sc, 30*sc);
+            ctx.fillStyle = '#15803d';
+            ctx.beginPath(); ctx.arc(targetX - 35*sc, screenY - 12*sc, 20*sc, 0, Math.PI*2); ctx.fill();
+        } else if (o.type === 'tree') {
+            // Cây mọc giữa to lớn
+            ctx.fillStyle = '#451a03';
+            ctx.fillRect(targetX - 16*sc, screenY - 60*sc, 32*sc, 65*sc);
+            ctx.fillStyle = '#16a34a';
+            ctx.beginPath(); ctx.arc(targetX, screenY - 65*sc, 38*sc, 0, Math.PI*2); ctx.fill();
         }
     });
 
     coinList.forEach(c => {
         let z = c.z;
         let screenY = 160 + z * 340;
-        let sc = 0.2 + z * 0.8;
-        let targetX = (c.lane === 0) ? 400 - z * 300 : (c.lane === 2) ? 400 + z * 300 : 400;
+        let sc = 0.3 + z * 0.7;
+        let targetX = (c.lane === 0) ? 400 - z * 320 : (c.lane === 2) ? 400 + z * 320 : 400;
 
+        // Đồng xu to hơn, lấp lánh
+        let bounce = Math.sin(timer * 4) * 6;
         ctx.fillStyle = '#fde047';
-        ctx.beginPath(); ctx.arc(targetX, screenY - 20*sc, 14*sc, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(targetX, screenY - 25*sc + bounce, 20*sc, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 3; ctx.stroke();
     });
 
-    // ==========================================
-    // 5. NHÂN VẬT CHÍNH (HOODIE XÁM SÁNG) - LUÔN HIỂN THỊ Ở TIỀN CẢNH
-    // ==========================================
+    // Vẽ hiệu ứng chữ bay khi ăn xu
+    floatTexts.forEach(ft => {
+        ctx.save();
+        ctx.globalAlpha = ft.alpha;
+        ctx.fillStyle = '#fde047';
+        ctx.font = 'bold 22px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.restore();
+    });
+
+    // 5. NHÂN VẬT CHÍNH (HOODIE XÁM SÁNG - TỐC ĐỘ BỨT PHÁ)
     let pX = lanes[currentLane];
-    let pY = 410 + jumpY;
-    let legMove = isJumping ? 0 : Math.sin(timer * 0.8) * 12;
+    let pY = 400 + jumpY;
+    let legMove = isJumping ? 0 : Math.sin(timer * 1.2) * 16;
+    let dustOffset = isJumping ? 0 : Math.sin(timer * 2) * 10;
+
+    // Hiệu ứng bụi phía sau chân chạy
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.beginPath(); ctx.arc(pX - 15, pY + 30, 8 + dustOffset*0.3, 0, Math.PI*2); ctx.fill();
 
     // Bóng nhân vật
     ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.beginPath(); ctx.ellipse(pX, pY + 30, 26, 10, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(pX, pY + 35, 28, 11, 0, 0, Math.PI*2); ctx.fill();
 
-    // Thân áo hoodie xám sáng
-    ctx.fillStyle = '#cbd5e1';
-    ctx.fillRect(pX - 22, pY - 60, 44, 60);
+    // Thân áo hoodie xám sáng bứt tốc
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(pX - 24, pY - 65, 48, 65);
     // Mũ hoodie trùm phía sau
-    ctx.fillStyle = '#94a3b8';
-    ctx.beginPath(); ctx.arc(pX, pY - 52, 20, Math.PI, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#cbd5e1';
+    ctx.beginPath(); ctx.arc(pX, pY - 58, 22, Math.PI, Math.PI*2); ctx.fill();
     // Đầu và tóc
     ctx.fillStyle = '#fef08a';
-    ctx.beginPath(); ctx.arc(pX, pY - 74, 16, 0, Math.PI*2); ctx.fill();
-    // Chân chạy
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(pX - 13, pY, 11, 28 + legMove);
-    ctx.fillRect(pX + 2, pY, 11, 28 - legMove);
+    ctx.beginPath(); ctx.arc(pX, pY - 80, 18, 0, Math.PI*2); ctx.fill();
+    // Chân chạy bứt phá nhanh
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(pX - 14, pY, 12, 32 + legMove);
+    ctx.fillRect(pX + 2, pY, 12, 32 - legMove);
 
-    // ==========================================
-    // 6. QUÁI VẬT XANH LÁ NEON - SÁT GÁY NGAY SAU LƯNG
-    // ==========================================
-    let mBreath = Math.sin(timer * 0.5) * 6;
+    // 6. QUÁI VẬT XANH LÁ NEON (BỊ BỎ LẠI PHÍA SAU MỘT CHÚT)
+    let mBreath = Math.sin(timer * 0.6) * 7;
     let mX = pX;
-    let mY = 465 + mBreath;
+    let mY = 475 + mBreath;
 
-    ctx.fillStyle = '#16a34a';
-    ctx.beginPath(); ctx.arc(mX, mY, 75, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#15803d';
+    ctx.beginPath(); ctx.arc(mX, mY, 80, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#22c55e';
-    ctx.beginPath(); ctx.arc(mX, mY - 25, 52, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(mX, mY - 28, 56, 0, Math.PI*2); ctx.fill();
 
     // Mắt phát sáng dữ dội
     ctx.fillStyle = '#fde047';
-    ctx.beginPath(); ctx.arc(mX - 16, mY - 32, 10, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(mX + 16, mY - 32, 10, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ef4444';
-    ctx.beginPath(); ctx.arc(mX - 16, mY - 32, 4.5, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(mX + 16, mY - 32, 4.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(mX - 18, mY - 36, 10, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(mX + 18, mY - 36, 10, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath(); ctx.arc(mX - 18, mY - 36, 4.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(mX + 18, mY - 36, 4.5, 0, Math.PI*2); ctx.fill();
 
     // 7. MÀN HÌNH GAME OVER
     if (!playing && score > 0) {
