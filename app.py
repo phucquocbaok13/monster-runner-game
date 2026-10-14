@@ -52,11 +52,11 @@ with st.container():
             <li><b>Mũi tên Trái (⬅️):</b> Chuyển sang làn TRÁI.</li>
             <li><b>Mũi tên Phải (➡️):</b> Chuyển sang làn PHẢI.</li>
         </ul>
-        <div class="tip">💡 Mẹo: Khi thu thập đồng xu, hiệu ứng chữ "+1coin" sẽ bay lên sinh động!</div>
+        <div class="tip">💡 Mẹo: Sử dụng phím mũi tên điều khiển cực kỳ mượt mà, không sợ xung đột phím!</div>
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML/JS với hiệu ứng +1coin
+# Mã nguồn HTML/JS đã loại bỏ dòng hướng dẫn theo yêu cầu
 game_code = (
     "<!DOCTYPE html>"
     "<html lang='vi'>"
@@ -85,7 +85,7 @@ game_code = (
     "<h1 style='color: #38bdf8; margin-bottom: 10px; text-shadow: 0 0 15px #0284c7;'>RỪNG ĐÊM 3D: BỨT TỐC</h1>"
     "<p style='max-width: 450px; color: #94a3b8; font-size: 15px; line-height: 1.5;'>"
     "Sử dụng các phím mũi tên để điều khiển nhân vật!<br>"
-    "Thu thập vàng để hiển thị hiệu ứng <b>+1coin</b> sinh động."
+    "Nhấn mũi tên Lên để nhảy, Trái / Phải để né tránh chướng ngại vật."
     "</p>"
     "<button class='play-btn' onclick='startTheGame()'>BẮT ĐẦU CHƠI</button>"
     "</div>"
