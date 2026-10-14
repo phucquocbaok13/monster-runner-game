@@ -52,11 +52,11 @@ with st.container():
             <li><b>Mũi tên Trái (⬅️):</b> Chuyển sang làn TRÁI.</li>
             <li><b>Mũi tên Phải (➡️):</b> Chuyển sang làn PHẢI.</li>
         </ul>
-        <div class="tip">💡 Mẹo: Quái vật phong cách The Grinch ranh mãnh bám đuổi sát phía sau!</div>
+        <div class="tip">💡 Mẹo: Chạy được 2 giây, quái vật Grinch sẽ tự động lùi lại tạo khoảng cách!</div>
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML/JS với quái vật phong cách Grinch
+# Mã nguồn HTML/JS hoàn chỉnh
 game_code = (
     "<!DOCTYPE html>"
     "<html lang='vi'>"
@@ -84,7 +84,7 @@ game_code = (
     "<div id='menu'>"
     "<h1 style='color: #38bdf8; margin-bottom: 10px; text-shadow: 0 0 15px #0284c7;'>RỪNG ĐÊM: ĐƯỜNG THẲNG</h1>"
     "<p style='max-width: 450px; color: #94a3b8; font-size: 15px; line-height: 1.5;'>"
-    "Tốc độ chậm rãi, đường đi thẳng song song!<br>"
+    "Sau 2 giây chạy, quái vật sẽ tự động lùi lại!<br>"
     "Dùng phím <b>Mũi tên Lên</b> để nhảy, <b>Trái / Phải</b> để đổi làn."
     "</p>"
     "<button class='play-btn' onclick='startTheGame()'>BẮT ĐẦU CHƠI</button>"
@@ -94,7 +94,7 @@ game_code = (
     "<script>"
     "const cvs = document.getElementById('cvs');"
     "const ctx = cvs.getContext('2d');"
-    "let playing = false, score = 0, coins = 0, speed = 3.5, timer = 0;"
+    "let playing = false, score = 0, coins = 0, speed = 3.5, timer = 0, frameCount = 0, currentMY = 460;"
     "const lanes = [280, 400, 520];"
     "let currentLane = 1, jumpY = 0, jumpVY = 0, isJumping = false;"
     "let obstacles = [], coinList = [], floatTexts = [], roadOffset = 0;"
@@ -105,7 +105,7 @@ game_code = (
     "  else if (e.code === 'ArrowUp') { if (!isJumping) { isJumping = true; jumpVY = -11; } e.preventDefault(); }"
     "});"
     "function startTheGame() {"
-    "  playing = true; score = 0; coins = 0; speed = 3.5; currentLane = 1; jumpY = 0; isJumping = false; obstacles = []; coinList = []; floatTexts = [];"
+    "  playing = true; score = 0; coins = 0; speed = 3.5; currentLane = 1; jumpY = 0; isJumping = false; frameCount = 0; currentMY = 460; obstacles = []; coinList = []; floatTexts = [];"
     "  document.getElementById('menu').style.display = 'none';"
     "}"
     "function spawnObjects() {"
@@ -119,7 +119,7 @@ game_code = (
     "setInterval(spawnObjects, 1600);"
     "function updateGame() {"
     "  if (!playing) return;"
-    "  score++; timer += 0.15; speed = 3.5 + Math.floor(score / 400) * 0.2; roadOffset += speed;"
+    "  score++; frameCount++; timer += 0.15; speed = 3.5 + Math.floor(score / 400) * 0.2; roadOffset += speed;"
     "  if (isJumping) { jumpY += jumpVY; jumpVY += 0.55; if (jumpY >= 0) { jumpY = 0; isJumping = false; } }"
     "  for (let i = floatTexts.length - 1; i >= 0; i--) {"
     "    let ft = floatTexts[i]; ft.y += ft.vy; ft.alpha -= 0.025; if (ft.alpha <= 0) floatTexts.splice(i, 1);"
@@ -189,7 +189,9 @@ game_code = (
     "  ctx.fillStyle = '#e2e8f0'; ctx.fillRect(pX - 16, pY - 25, 32, 40);"
     "  ctx.fillStyle = '#94a3b8'; ctx.fillRect(pX - 22, pY - 20 + armSwing, 8, 22); ctx.fillRect(pX + 14, pY - 20 - armSwing, 8, 22);"
     "  ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(pX, pY - 38, 14, 0, Math.PI*2); ctx.fill();"
-    "  let mX = pX, mY = 460;"
+    "  let targetMY = (frameCount > 120) ? 520 : 460;"
+    "  currentMY += (targetMY - currentMY) * 0.05;"
+    "  let mX = pX, mY = currentMY + Math.sin(timer * 0.6) * 6;"
     "  ctx.fillStyle = '#22c55e';"
     "  ctx.beginPath(); ctx.moveTo(mX, mY - 60); ctx.bezierCurveTo(mX + 45, mY - 40, mX + 50, mY + 10, mX + 30, mY + 40);"
     "  ctx.bezierCurveTo(mX + 15, mY + 55, mX - 15, mY + 55, mX - 30, mY + 40);"
