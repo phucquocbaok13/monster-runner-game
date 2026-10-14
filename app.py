@@ -3,7 +3,7 @@ import streamlit.components.v1 as components
 
 # Cấu hình trang Streamlit
 st.set_page_config(
-    page_title="Chạy Trốn Quái Vật - Góc Nhìn Từ Sau Lưng",
+    page_title="Chạy Trốn Quái Vật - Phong Cách Subway Surfers",
     page_icon="🏃",
     layout="centered"
 )
@@ -20,29 +20,29 @@ st.markdown("""
     }
     h1 {
         text-align: center;
-        color: #ff4b4b;
-        text-shadow: 0 0 10px rgba(255, 75, 75, 0.5);
+        color: #ffcc00;
+        text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>🏃 CHẠY TRỐN QUÁI VẬT - GÓC NHÌN TỪ SAU LƯNG 🌳</h1>", unsafe_allow_html=True)
+st.markdown("<h1>🏃 CHẠY TRỐN QUÁI VẬT - RỪNG XANH NẮNG VÀNG 🌳</h1>", unsafe_allow_html=True)
 
-# Phần hướng dẫn điều khiển sáng rực Neon (Đã cập nhật phím W để nhảy)
+# Phần hướng dẫn điều khiển sáng rực Neon
 with st.container():
     st.markdown("""
     <style>
     .neon-instructions {
-        background: linear-gradient(135deg, #1e2530 0%, #2a1515 100%);
+        background: linear-gradient(135deg, #1e2530 0%, #152a1a 100%);
         padding: 20px;
         border-radius: 12px;
         margin-bottom: 20px;
-        border: 2px solid #ff4b4b;
-        box-shadow: 0 0 15px rgba(255, 75, 75, 0.6);
+        border: 2px solid #4caf50;
+        box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
     }
     .neon-instructions h3 {
-        color: #ff6b6b;
-        text-shadow: 0 0 8px rgba(255, 107, 107, 0.8);
+        color: #66bb6a;
+        text-shadow: 0 0 8px rgba(102, 187, 106, 0.8);
         margin-top: 0;
     }
     .neon-instructions li {
@@ -54,28 +54,25 @@ with st.container():
         color: #ffcc00;
         text-shadow: 0 0 5px rgba(255, 204, 0, 0.6);
     }
-    .neon-instructions i {
-        color: #00ffcc;
-    }
     </style>
     
     <div class="neon-instructions">
         <h3>🎮 HƯỚNG DẪN ĐIỀU KHIỂN:</h3>
         <ul>
-            <li><b>Phím W:</b> Nhảy qua tảng đá / chướng ngại vật thấp.</li>
+            <li><b>Phím W:</b> Nhảy qua tảng đá / chướng ngại vật.</li>
             <li><b>Phím A:</b> Né sang làn TRÁI.</li>
             <li><b>Phím D:</b> Né sang làn PHẢI.</li>
         </ul>
-        <p style="margin-bottom: 0;"><i>🔥 Mẹo: Sử dụng phím W để nhảy và A/D để đổi làn thật mượt mà. Quái vật xanh đang rượt sát sau gáy bạn đấy!</i></p>
+        <p style="margin-bottom: 0;"><i>☀️ Mẹo: Thu thập tiền vàng, né tránh chướng ngại vật trong khung cảnh rừng xanh ngập tràn ánh nắng và âm thanh sống động!</i></p>
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML/JS trò chơi
+# Mã nguồn HTML/JS trò chơi 3D tươi sáng phong cách Subway Surfers
 game_html = """<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Monster Rear View Runner</title>
+    <title>Subway Forest Runner</title>
     <style>
         body {
             margin: 0;
@@ -90,14 +87,14 @@ game_html = """<!DOCTYPE html>
         }
         #game-container {
             position: relative;
-            box-shadow: 0 0 25px rgba(0, 255, 128, 0.3);
+            box-shadow: 0 0 25px rgba(255, 204, 0, 0.4);
             border-radius: 8px;
             overflow: hidden;
             background: #111;
         }
         canvas {
             display: block;
-            background: #121c13;
+            background: linear-gradient(to bottom, #87ceeb, #e0f6ff);
         }
         #ui {
             position: absolute;
@@ -106,11 +103,18 @@ game_html = """<!DOCTYPE html>
             right: 15px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 18px;
             font-weight: bold;
             text-shadow: 2px 2px #000;
             pointer-events: none;
             z-index: 5;
+        }
+        .score-badge {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         #start-screen {
             position: absolute;
@@ -118,7 +122,7 @@ game_html = """<!DOCTYPE html>
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.88);
+            background: rgba(0, 0, 0, 0.82);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -127,20 +131,20 @@ game_html = """<!DOCTYPE html>
             z-index: 10;
         }
         .btn {
-            background: #2e7d32;
+            background: #ff9800;
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 12px 28px;
             font-size: 20px;
             font-weight: bold;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             margin-top: 15px;
-            box-shadow: 0 0 10px #4caf50;
+            box-shadow: 0 0 15px #ff9800;
             transition: 0.2s;
         }
         .btn:hover {
-            background: #388e3c;
+            background: #ffb74d;
             transform: scale(1.05);
         }
     </style>
@@ -149,14 +153,16 @@ game_html = """<!DOCTYPE html>
 
 <div id="game-container">
     <div id="ui">
-        <span id="score-display">ĐIỂM: 0</span>
-        <span id="danger-display" style="color: #ff4b4b;">⚠️ QUÁI VẬT: SÁT GÁY!</span>
+        <div class="score-badge">⭐ ĐIỂM: <span id="score-display">0</span></div>
+        <div class="score-badge" style="color: #ffeb3b;">🪙 VÀNG: <span id="coin-display">0</span></div>
+        <div class="score-badge" style="color: #ff5252;">⚠️ QUÁI VẬT: SÁT GÁY!</div>
     </div>
 
     <div id="start-screen">
-        <h1 style="color: #4caf50; margin-bottom: 5px; text-shadow: 0 0 10px #2e7d32;">RỪNG SÂU TỬ THẦN - GÓC NHÌN TỪ SAU LƯNG</h1>
-        <p style="max-width: 450px; color: #ccc; font-size: 14px; line-height: 1.4;">
-            Sử dụng phím <b>W</b> để nhảy, <b>A</b> (Trái), <b>D</b> (Phải) để né làn!
+        <h1 style="color: #ffeb3b; margin-bottom: 5px; text-shadow: 0 0 15px #ff9800;">RỪNG XANH NẮNG VÀNG</h1>
+        <p style="max-width: 450px; color: #eee; font-size: 14px; line-height: 1.4;">
+            Trải nghiệm phong cách Subway Surfers rực rỡ dưới ánh mặt trời!<br>
+            Dùng phím <b>W</b> để nhảy, <b>A</b> (Trái), <b>D</b> (Phải) để đổi làn và thu thập xu vàng!
         </p>
         <button class="btn" onclick="startGame()">BẮT ĐẦU CHẠY</button>
     </div>
@@ -170,8 +176,9 @@ const ctx = canvas.getContext('2d');
 
 let gameStarted = false;
 let score = 0;
+let coins = 0;
 let gameOver = false;
-let gameSpeed = 5;
+let gameSpeed = 5.5;
 let animTimer = 0;
 
 let audioCtx = null;
@@ -190,19 +197,19 @@ function initAudio() {
             if (!gameStarted || gameOver) return;
             let osc = audioCtx.createOscillator();
             let gain = audioCtx.createGain();
-            osc.type = beat % 2 === 0 ? 'sawtooth' : 'square';
-            osc.frequency.setValueAtTime(beat % 4 === 0 ? 80 : 120, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(beat % 2 === 0 ? 220 : 330, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.12);
             
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
             
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.15);
+            osc.stop(audioCtx.currentTime + 0.12);
             beat++;
-        }, 180);
+        }, 200);
     }
 }
 
@@ -213,14 +220,20 @@ function playSound(type) {
     
     if (type === 'jump') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(350, audioCtx.currentTime + 0.2);
+        osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.2);
         gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
         gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+    } else if (type === 'coin') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
     } else if (type === 'hit') {
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-        osc.frequency.linearRampToValueAtTime(30, audioCtx.currentTime + 0.3);
+        osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.3);
         gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
         gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
     }
@@ -234,12 +247,13 @@ function playSound(type) {
 const roadHorizonY = 180;
 const roadBottomY = 500;
 
-let playerLane = 1; // 0, 1, 2
+let playerLane = 1; 
 let playerYOffset = 0;
 let playerJumpVY = 0;
 let isJumping = false;
 
 let obstacles = [];
+let coinItems = [];
 let roadScroll = 0;
 
 window.addEventListener('keydown', (e) => {
@@ -261,35 +275,38 @@ function startGame() {
     gameStarted = true;
     gameOver = false;
     score = 0;
-    gameSpeed = 5;
+    coins = 0;
+    gameSpeed = 5.5;
     obstacles = [];
+    coinItems = [];
     playerLane = 1;
     playerYOffset = 0;
     document.getElementById('start-screen').style.display = 'none';
     initAudio();
 }
 
-function spawnObstacle() {
+function spawnEntity() {
     if (!gameStarted || gameOver) return;
     let lane = Math.floor(Math.random() * 3);
-    let types = ['rock', 'fallen_tree', 'tree_stump'];
-    let type = types[Math.floor(Math.random() * types.length)];
     
-    obstacles.push({
-        lane: lane,
-        progress: 0.05,
-        type: type
-    });
+    // 60% ra chướng ngại vật, 40% ra tiền vàng
+    if (Math.random() < 0.6) {
+        let types = ['rock', 'fallen_tree', 'tree_stump'];
+        let type = types[Math.floor(Math.random() * types.length)];
+        obstacles.push({ lane: lane, progress: 0.05, type: type });
+    } else {
+        coinItems.push({ lane: lane, progress: 0.05 });
+    }
 }
 
-setInterval(spawnObstacle, 1500);
+setInterval(spawnEntity, 1300);
 
 function update() {
     if (!gameStarted || gameOver) return;
 
     score += 1;
     animTimer += 0.2;
-    gameSpeed = 5 + Math.floor(score / 300) * 0.5;
+    gameSpeed = 5.5 + Math.floor(score / 300) * 0.4;
 
     if (isJumping) {
         playerYOffset += playerJumpVY;
@@ -300,8 +317,9 @@ function update() {
         }
     }
 
-    roadScroll += gameSpeed * 3;
+    roadScroll += gameSpeed * 3.5;
 
+    // Cập nhật chướng ngại vật
     for (let i = obstacles.length - 1; i >= 0; i--) {
         let obs = obstacles[i];
         obs.progress += gameSpeed * 0.0022;
@@ -321,171 +339,143 @@ function update() {
             obstacles.splice(i, 1);
         }
     }
+
+    // Cập nhật tiền vàng
+    for (let i = coinItems.length - 1; i >= 0; i--) {
+        let c = coinItems[i];
+        c.progress += gameSpeed * 0.0022;
+
+        if (c.progress >= 0.82 && c.progress <= 0.92) {
+            if (c.lane === playerLane && playerYOffset > -40) {
+                coins += 1;
+                playSound('coin');
+                coinItems.splice(i, 1);
+                continue;
+            }
+        }
+
+        if (c.progress > 1.05) {
+            coinItems.splice(i, 1);
+        }
+    }
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = '#0a100c';
+    // 1. Nền trời sáng sủa & Ánh mặt trời rực rỡ
+    let skyGrad = ctx.createLinearGradient(0, 0, 0, roadHorizonY);
+    skyGrad.addColorStop(0, '#4fc3f7');
+    skyGrad.addColorStop(1, '#e1f5fe');
+    ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, canvas.width, roadHorizonY);
 
+    // Vẽ Mặt Trời chói lọi
+    ctx.fillStyle = 'rgba(255, 235, 59, 0.85)';
     ctx.beginPath();
-    ctx.moveTo(400, roadHorizonY);
-    ctx.lineTo(150, roadBottomY);
-    ctx.lineTo(650, roadBottomY);
-    ctx.closePath();
-    ctx.fillStyle = '#1e2c20';
+    ctx.arc(650, 70, 40, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.strokeStyle = '#38543b';
-    ctx.lineWidth = 3;
-    
+    // 2. Con đường rừng xanh mướt (phối cảnh Subway Surfers)
+    let groundGrad = ctx.createLinearGradient(0, roadHorizonY, 0, roadBottomY);
+    groundGrad.addColorStop(0, '#2e7d32');
+    groundGrad.addColorStop(1, '#1b5e20');
+    ctx.fillStyle = groundGrad;
+    ctx.fillRect(0, roadHorizonY, canvas.width, roadBottomY - roadHorizonY);
+
+    // Lòng đường chính lát đá sáng
     ctx.beginPath();
     ctx.moveTo(400, roadHorizonY);
-    ctx.lineTo(316, roadBottomY);
-    ctx.stroke();
+    ctx.lineTo(200, roadBottomY);
+    ctx.lineTo(600, roadBottomY);
+    ctx.closePath();
+    ctx.fillStyle = '#8d6e63';
+    ctx.fill();
 
+    // Vạch đường ray / đường chạy đôi
+    ctx.strokeStyle = '#4e342e';
+    ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(400, roadHorizonY);
-    ctx.lineTo(483, roadBottomY);
+    ctx.moveTo(400, roadHorizonY); ctx.lineTo(300, roadBottomY);
+    ctx.moveTo(400, roadHorizonY); ctx.lineTo(500, roadBottomY);
     ctx.stroke();
 
-    ctx.fillStyle = '#141f15';
+    // 3. Hai hàng cây xanh mướt hai bên rực rỡ ánh nắng
     for (let i = -2; i < 8; i++) {
-        let treeProgress = (i * 0.2 + (roadScroll * 0.001)) % 1.0;
+        let treeProgress = (i * 0.2 + (roadScroll * 0.0012)) % 1.0;
         let treeY = roadHorizonY + treeProgress * (roadBottomY - roadHorizonY);
-        let leftTreeX = 400 - treeProgress * 300;
-        let rightTreeX = 400 + treeProgress * 300;
-        
+        let leftX = 400 - treeProgress * 320;
+        let rightX = 400 + treeProgress * 320;
+        let radius = 15 + treeProgress * 45;
+
+        // Thân cây
+        ctx.fillStyle = '#5d4037';
+        ctx.fillRect(leftX - 4, treeY, 8, 30);
+        ctx.fillRect(rightX - 4, treeY, 8, 30);
+
+        // Tán lá xanh mướt
+        ctx.fillStyle = '#4caf50';
         ctx.beginPath();
-        ctx.arc(leftTreeX, treeY, 20 + treeProgress * 35, 0, Math.PI * 2);
-        ctx.arc(rightTreeX, treeY, 20 + treeProgress * 35, 0, Math.PI * 2);
+        ctx.arc(leftX, treeY - 10, radius, 0, Math.PI * 2);
+        ctx.arc(rightX, treeY - 10, radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Điểm sáng trên tán lá (hiệu ứng nắng chiếu)
+        ctx.fillStyle = '#81c784';
+        ctx.beginPath();
+        ctx.arc(leftX - 5, treeY - 15, radius * 0.4, 0, Math.PI * 2);
+        ctx.arc(rightX - 5, treeY - 15, radius * 0.4, 0, Math.PI * 2);
         ctx.fill();
     }
 
-    obstacles.sort((a, b) => a.progress - b.progress);
+    // 4. Vẽ Tiền Vàng và Chướng ngại vật (sắp xếp theo chiều sâu)
+    let allEntities = [];
+    obstacles.forEach(obs => allEntities.push({type: 'obs', data: obs, p: obs.progress}));
+    coinItems.forEach(coin => allEntities.push({type: 'coin', data: coin, p: coin.progress}));
+    
+    allEntities.sort((a, b) => a.p - b.p);
 
-    obstacles.forEach(obs => {
-        let p = obs.progress;
+    allEntities.forEach(item => {
+        let p = item.p;
         let screenY = roadHorizonY + p * (roadBottomY - roadHorizonY);
+        let lane = item.data.lane;
         
         let targetX = 400;
-        if (obs.lane === 0) targetX = 400 - p * 250;
-        else if (obs.lane === 1) targetX = 400;
-        else if (obs.lane === 2) targetX = 400 + p * 250;
+        if (lane === 0) targetX = 400 - p * 200;
+        else if (lane === 1) targetX = 400;
+        else if (lane === 2) targetX = 400 + p * 200;
 
         let scale = 0.2 + p * 0.8;
 
-        if (obs.type === 'rock') {
-            ctx.fillStyle = '#4a5568';
+        if (item.type === 'coin') {
+            // Đồng xu vàng lấp lánh
+            let coinBounce = Math.sin(animTimer * 5) * 5;
+            ctx.fillStyle = '#ffeb3b';
             ctx.beginPath();
-            ctx.arc(targetX, screenY, 30 * scale, 0, Math.PI * 2);
+            ctx.arc(targetX, screenY - 20 * scale + coinBounce, 12 * scale, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#718096';
-            ctx.beginPath();
-            ctx.arc(targetX - 5 * scale, screenY - 5 * scale, 12 * scale, 0, Math.PI * 2);
-            ctx.fill();
-        } else if (obs.type === 'fallen_tree') {
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(targetX - 50 * scale, screenY - 15 * scale, 100 * scale, 22 * scale);
-            ctx.fillStyle = '#2e7d32';
-            ctx.beginPath();
-            ctx.arc(targetX - 35 * scale, screenY - 10 * scale, 18 * scale, 0, Math.PI * 2);
-            ctx.fill();
-        } else if (obs.type === 'tree_stump') {
-            ctx.fillStyle = '#6e4f3a';
-            ctx.fillRect(targetX - 22 * scale, screenY - 25 * scale, 44 * scale, 30 * scale);
-            ctx.fillStyle = '#3b2219';
-            ctx.beginPath();
-            ctx.ellipse(targetX, screenY - 25 * scale, 22 * scale, 9 * scale, 0, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    });
-
-    let playerBaseX = 400;
-    if (playerLane === 0) playerBaseX = 270;
-    else if (playerLane === 1) playerBaseX = 400;
-    else if (playerLane === 2) playerBaseX = 530;
-
-    let playerDrawY = 430 + playerYOffset;
-    let legAnim = isJumping ? 0 : Math.sin(animTimer * 6) * 8;
-
-    ctx.fillStyle = '#ffcc00';
-    ctx.fillRect(playerBaseX - 18, playerDrawY - 45, 36, 45);
-    ctx.fillStyle = '#ffd1b3';
-    ctx.beginPath();
-    ctx.arc(playerBaseX, playerDrawY - 55, 14, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#1e88e5';
-    ctx.beginPath();
-    ctx.arc(playerBaseX, playerDrawY - 58, 14, Math.PI, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#1a237e';
-    ctx.fillRect(playerBaseX - 12, playerDrawY, 9, 20 + legAnim);
-    ctx.fillRect(playerBaseX + 3, playerDrawY, 9, 20 - legAnim);
-
-    let monsterBreath = Math.sin(animTimer * 5) * 6;
-    let monsterX = 400 + (playerLane - 1) * 60;
-    let monsterY = 475 + monsterBreath;
-
-    ctx.fillStyle = '#004d40';
-    ctx.beginPath();
-    ctx.arc(monsterX, monsterY, 55, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#00695c';
-    ctx.beginPath();
-    ctx.arc(monsterX, monsterY - 20, 35, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#ffea00';
-    ctx.beginPath();
-    ctx.arc(monsterX - 15, monsterY - 25, 7, 0, Math.PI * 2);
-    ctx.arc(monsterX + 15, monsterY - 25, 7, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#ff3d00';
-    ctx.beginPath();
-    ctx.arc(monsterX - 15, monsterY - 25, 3, 0, Math.PI * 2);
-    ctx.arc(monsterX + 15, monsterY - 25, 3, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (gameOver) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.88)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.fillStyle = '#ff3333';
-        ctx.font = 'bold 38px "Courier New"';
-        ctx.textAlign = 'center';
-        ctx.fillText('BẠN ĐÃ BỊ QUÁI VẬT XANH TÚM TÓC!', canvas.width / 2, 190);
-        
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '24px "Courier New"';
-        ctx.fillText('Điểm đạt được: ' + score, canvas.width / 2, 250);
-        
-        ctx.fillStyle = '#aaaaaa';
-        ctx.font = '16px "Courier New"';
-        ctx.fillText('Nhấn nút bên dưới để thử lại', canvas.width / 2, 300);
-        
-        document.getElementById('start-screen').style.display = 'flex';
-        document.getElementById('start-screen').querySelector('h1').innerText = 'THUA MẤT RỒI!';
-        document.getElementById('start-screen').querySelector('button').innerText = 'CHƠI LẠI NGAY';
-    }
-
-    document.getElementById('score-display').innerText = 'ĐIỂM: ' + score;
-}
-
-function gameLoop() {
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
-}
-
-gameLoop();
-</script>
-
-</body>
-</html>
-"""
-
-# Hiển thị game trực tiếp
-components.html(game_html, height=580, scrolling=False)
+            ctx.strokeStyle = '#fbc02d';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        } else {
+            let obs = item.data;
+            if (obs.type === 'rock') {
+                ctx.fillStyle = '#78909c';
+                ctx.beginPath();
+                ctx.arc(targetX, screenY, 28 * scale, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#b0bec5';
+                ctx.beginPath();
+                ctx.arc(targetX - 4 * scale, screenY - 4 * scale, 10 * scale, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (obs.type === 'fallen_tree') {
+                ctx.fillStyle = '#6d4c41';
+                ctx.fillRect(targetX - 45 * scale, screenY - 15 * scale, 90 * scale, 20 * scale);
+                ctx.fillStyle = '#66bb6a';
+                ctx.beginPath();
+                ctx.arc(targetX - 30 * scale, screenY - 10 * scale, 15 * scale, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (obs.type === 'tree_stump') {
+                ctx.fillStyle = '#795548';
+                ctx.fillRect(targetX - 20 * scale, screenY - 22 * scale, 40 * scale, 26 * scale);
+                ctx.fillStyle = '#4e
