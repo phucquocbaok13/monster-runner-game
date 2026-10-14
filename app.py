@@ -48,15 +48,15 @@ with st.container():
     <div class="box-hd">
         <h3>🎮 ĐIỀU KHIỂN TRÒ CHƠI:</h3>
         <ul>
-            <li><b>Phím W:</b> Nhảy lên tránh chướng ngại vật lớn.</li>
-            <li><b>Phím A:</b> Chuyển sang làn TRÁI.</li>
-            <li><b>Phím D:</b> Chuyển sang làn PHẢI.</li>
+            <li><b>Phím W / Mũi tên Lên:</b> Nhảy lên tránh chướng ngại vật lớn.</li>
+            <li><b>Phím A / Mũi tên Trái:</b> Chuyển sang làn TRÁI.</li>
+            <li><b>Phím D / Mũi tên Phải:</b> Chuyển sang làn PHẢI.</li>
         </ul>
-        <div class="tip">💡 Mẹo: Nhân vật bứt tốc vượt trội, đồng xu to kèm hiệu ứng bay tiền vàng, đá và cây cối sắc nét chi tiết 3D!</div>
+        <div class="tip">💡 Mẹo: Đã sửa lỗi phím W, thao tác nhảy mượt mà không bị ảnh hưởng bởi phím trái/phải hay bộ gõ tiếng Việt!</div>
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML/JS hoàn chỉnh
+# Mã nguồn HTML/JS hoàn chỉnh đã sửa lỗi phím bấm
 game_code = """<!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -145,8 +145,8 @@ game_code = """<!DOCTYPE html>
     <div id="menu">
         <h1 style="color: #38bdf8; margin-bottom: 10px; text-shadow: 0 0 15px #0284c7;">RỪNG ĐÊM 3D: BỨT TỐC</h1>
         <p style="max-width: 450px; color: #94a3b8; font-size: 15px; line-height: 1.5;">
-            Nhân vật bứt tốc mạnh mẽ, thu thập đồng xu lớn kèm hiệu ứng!<br>
-            Dùng phím <b>W</b> để nhảy, <b>A</b> và <b>D</b> để né tránh chướng ngại vật khổng lồ!
+            Đã khắc phục hoàn toàn lỗi phím W!<br>
+            Dùng phím <b>W</b> để nhảy, <b>A / D</b> để né tránh chướng ngại vật!
         </p>
         <button class="play-btn" onclick="startTheGame()">BẮT ĐẦU CHƠI</button>
     </div>
@@ -173,18 +173,24 @@ let isJumping = false;
 
 let obstacles = [];
 let coinList = [];
-let floatTexts = []; // Hiệu ứng chữ bay khi ăn xu
+let floatTexts = [];
 let roadOffset = 0;
 
 window.addEventListener('keydown', (e) => {
     if (!playing) return;
-    if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
+    
+    // Tách bạch rõ ràng từng phím bấm để tránh xung đột
+    if (e.code === 'KeyA' || e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
         if (currentLane > 0) currentLane--;
-    } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
+        e.preventDefault();
+    } else if (e.code === 'KeyD' || e.code === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
         if (currentLane < 2) currentLane++;
-    } else if ((e.code === 'KeyW' || e.code === 'ArrowUp') && !isJumping) {
-        isJumping = true;
-        jumpVY = -13;
+        e.preventDefault();
+    } else if (e.code === 'KeyW' || e.code === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        if (!isJumping) {
+            isJumping = true;
+            jumpVY = -13;
+        }
         e.preventDefault();
     }
 });
@@ -233,7 +239,6 @@ function updateGame() {
         }
     }
 
-    // Cập nhật hiệu ứng chữ bay
     for (let i = floatTexts.length - 1; i >= 0; i--) {
         let ft = floatTexts[i];
         ft.y += ft.vy;
@@ -263,7 +268,6 @@ function updateGame() {
         if (c.z >= 0.84 && c.z <= 0.95 && c.lane === currentLane && jumpY > -50) {
             coins++;
             let targetX = (c.lane === 0) ? 260 : (c.lane === 2) ? 540 : 400;
-            // Thêm hiệu ứng chữ bay +1 🪙
             floatTexts.push({ x: targetX, y: 360, text: '+1 🪙', alpha: 1.0, vy: -2.5 });
             coinList.splice(i, 1);
             continue;
@@ -322,7 +326,7 @@ function renderGame() {
         ctx.beginPath(); ctx.arc(rX, tY - 12*s, 26*s, 0, Math.PI*2); ctx.fill();
     }
 
-    // 4. Vật thể (To lớn & chi tiết hơn) & Đồng xu to
+    // 4. Vật thể & Đồng xu
     obstacles.forEach(o => {
         let z = o.z;
         let screenY = 160 + z * 340;
@@ -330,19 +334,16 @@ function renderGame() {
         let targetX = (o.lane === 0) ? 400 - z * 320 : (o.lane === 2) ? 400 + z * 320 : 400;
 
         if (o.type === 'rock') {
-            // Tảng đá lớn có vân & bóng
             ctx.fillStyle = '#475569';
             ctx.beginPath(); ctx.arc(targetX, screenY, 42*sc, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = '#94a3b8';
             ctx.beginPath(); ctx.arc(targetX - 8*sc, screenY - 8*sc, 18*sc, 0, Math.PI*2); ctx.fill();
         } else if (o.type === 'log') {
-            // Cây đổ ngang to lớn chi tiết
             ctx.fillStyle = '#78350f';
             ctx.fillRect(targetX - 60*sc, screenY - 20*sc, 120*sc, 30*sc);
             ctx.fillStyle = '#15803d';
             ctx.beginPath(); ctx.arc(targetX - 35*sc, screenY - 12*sc, 20*sc, 0, Math.PI*2); ctx.fill();
         } else if (o.type === 'tree') {
-            // Cây mọc giữa to lớn
             ctx.fillStyle = '#451a03';
             ctx.fillRect(targetX - 16*sc, screenY - 60*sc, 32*sc, 65*sc);
             ctx.fillStyle = '#16a34a';
@@ -356,14 +357,12 @@ function renderGame() {
         let sc = 0.3 + z * 0.7;
         let targetX = (c.lane === 0) ? 400 - z * 320 : (c.lane === 2) ? 400 + z * 320 : 400;
 
-        // Đồng xu to hơn, lấp lánh
         let bounce = Math.sin(timer * 4) * 6;
         ctx.fillStyle = '#fde047';
         ctx.beginPath(); ctx.arc(targetX, screenY - 25*sc + bounce, 20*sc, 0, Math.PI*2); ctx.fill();
         ctx.strokeStyle = '#ca8a04'; ctx.lineWidth = 3; ctx.stroke();
     });
 
-    // Vẽ hiệu ứng chữ bay khi ăn xu
     floatTexts.forEach(ft => {
         ctx.save();
         ctx.globalAlpha = ft.alpha;
@@ -374,94 +373,29 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 5. NHÂN VẬT CHÍNH (HOODIE XÁM SÁNG - TỐC ĐỘ BỨT PHÁ)
+    // 5. NHÂN VẬT CHÍNH
     let pX = lanes[currentLane];
     let pY = 400 + jumpY;
     let legMove = isJumping ? 0 : Math.sin(timer * 1.2) * 16;
     let dustOffset = isJumping ? 0 : Math.sin(timer * 2) * 10;
 
-    // Hiệu ứng bụi phía sau chân chạy
     ctx.fillStyle = 'rgba(255,255,255,0.3)';
     ctx.beginPath(); ctx.arc(pX - 15, pY + 30, 8 + dustOffset*0.3, 0, Math.PI*2); ctx.fill();
 
-    // Bóng nhân vật
     ctx.fillStyle = 'rgba(0,0,0,0.6)';
     ctx.beginPath(); ctx.ellipse(pX, pY + 35, 28, 11, 0, 0, Math.PI*2); ctx.fill();
 
-    // Thân áo hoodie xám sáng bứt tốc
     ctx.fillStyle = '#e2e8f0';
     ctx.fillRect(pX - 24, pY - 65, 48, 65);
-    // Mũ hoodie trùm phía sau
     ctx.fillStyle = '#cbd5e1';
     ctx.beginPath(); ctx.arc(pX, pY - 58, 22, Math.PI, Math.PI*2); ctx.fill();
-    // Đầu và tóc
     ctx.fillStyle = '#fef08a';
     ctx.beginPath(); ctx.arc(pX, pY - 80, 18, 0, Math.PI*2); ctx.fill();
-    // Chân chạy bứt phá nhanh
     ctx.fillStyle = '#0f172a';
     ctx.fillRect(pX - 14, pY, 12, 32 + legMove);
     ctx.fillRect(pX + 2, pY, 12, 32 - legMove);
 
-    // 6. QUÁI VẬT XANH LÁ NEON (BỊ BỎ LẠI PHÍA SAU MỘT CHÚT)
+    // 6. QUÁI VẬT XANH LÁ
     let mBreath = Math.sin(timer * 0.6) * 7;
     let mX = pX;
-    let mY = 475 + mBreath;
-
-    ctx.fillStyle = '#15803d';
-    ctx.beginPath(); ctx.arc(mX, mY, 80, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#22c55e';
-    ctx.beginPath(); ctx.arc(mX, mY - 28, 56, 0, Math.PI*2); ctx.fill();
-
-    // Mắt phát sáng dữ dội
-    ctx.fillStyle = '#fde047';
-    ctx.beginPath(); ctx.arc(mX - 18, mY - 36, 10, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(mX + 18, mY - 36, 10, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#dc2626';
-    ctx.beginPath(); ctx.arc(mX - 18, mY - 36, 4.5, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(mX + 18, mY - 36, 4.5, 0, Math.PI*2); ctx.fill();
-
-    // 7. MÀN HÌNH GAME OVER
-    if (!playing && score > 0) {
-        ctx.fillStyle = 'rgba(3, 7, 18, 0.94)';
-        ctx.fillRect(0, 0, cvs.width, cvs.height);
-
-        ctx.fillStyle = '#f43f5e';
-        ctx.font = 'bold 36px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('BẠN ĐÃ BỊ QUÁI VẬT TÚM TÓC!', cvs.width / 2, 180);
-
-        ctx.fillStyle = '#fde047';
-        ctx.font = '22px monospace';
-        ctx.fillText('⭐ Điểm: ' + score + '  |  🪙 Vàng: ' + coins, cvs.width / 2, 240);
-
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '16px monospace';
-        ctx.fillText('Nhấn nút bên dưới để chơi lại', cvs.width / 2, 300);
-
-        document.getElementById('menu').style.display = 'flex';
-        document.getElementById('menu').querySelector('h1').innerText = 'THUA MẤT RỒI!';
-        document.querySelector('.play-btn').innerText = 'CHƠI LẠI NGAY';
-    }
-
-    document.getElementById('score').innerText = score;
-    document.getElementById('coins').innerText = coins;
-}
-
-function mainLoop() {
-    try {
-        updateGame();
-        renderGame();
-    } catch(err) {
-        console.error(err);
-    }
-    requestAnimationFrame(mainLoop);
-}
-
-mainLoop();
-</script>
-
-</body>
-</html>
-"""
-
-components.html(game_code, height=580, scrolling=False)
+    let mY = 475 + m
