@@ -29,7 +29,7 @@ st.markdown("""
 
 st.markdown("<h1>🌲 CHẠY TRỐN QUÁI VẬT - RỪNG ĐÊM 🌙</h1>", unsafe_allow_html=True)
 
-# Hướng dẫn điều khiển trên điện thoại và máy tính
+# Hướng dẫn điều khiển trên điện thoại và máy tính (đã xóa dòng mẹo)
 with st.container():
     st.markdown("""
     <style>
@@ -44,7 +44,6 @@ with st.container():
     .box-hd h3 { color: #38bdf8; margin-top: 0; font-size: 16px; }
     .box-hd li { color: #f8fafc; font-size: 14px; margin-bottom: 4px; }
     .box-hd b { color: #fde047; }
-    .tip { color: #34d399; font-weight: bold; margin-top: 6px; font-size: 14px; }
     </style>
     <div class="box-hd">
         <h3>🎮 HƯỚNG DẪN ĐIỀU KHIỂN:</h3>
@@ -52,7 +51,6 @@ with st.container():
             <li><b>Điện thoại:</b> Sử dụng các nút bấm ảo phía dưới màn hình hoặc vuốt màn hình.</li>
             <li><b>Máy tính:</b> Dùng các phím <b>Mũi tên</b> (Lên để nhảy, Trái/Phải để đổi làn).</li>
         </ul>
-        <div class="tip">💡 Mẹo: Hỗ trợ cảm ứng hoàn hảo, quái vật Grinch lùi lại sau 2 giây chạy!</div>
     </div>
     """, unsafe_allow_html=True)
 
