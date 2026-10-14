@@ -28,7 +28,7 @@ st.markdown("""
 
 st.markdown("<h1>🏃 CHẠY TRỐN QUÁI VẬT - RỪNG XANH NẮNG VÀNG 🌳</h1>", unsafe_allow_html=True)
 
-# Phần hướng dẫn điều khiển
+# Phần hướng dẫn điều khiển với dòng Mẹo sáng rực Neon
 with st.container():
     st.markdown("""
     <style>
@@ -53,6 +53,18 @@ with st.container():
     .neon-instructions b {
         color: #ffcc00;
     }
+    /* Hiệu ứng làm sáng rực cho dòng mẹo */
+    .glow-tip {
+        color: #ffeb3b !important;
+        font-size: 16px;
+        font-weight: bold;
+        text-shadow: 0 0 10px #ffeb3b, 0 0 20px #ff9800;
+        background: rgba(255, 235, 59, 0.1);
+        padding: 8px 12px;
+        border-radius: 6px;
+        border-left: 4px solid #ffeb3b;
+        margin-top: 10px;
+    }
     </style>
     
     <div class="neon-instructions">
@@ -62,7 +74,7 @@ with st.container():
             <li><b>Phím A:</b> Né sang làn TRÁI.</li>
             <li><b>Phím D:</b> Né sang làn PHẢI.</li>
         </ul>
-        <p style="margin-bottom: 0;"><i>☀️ Mẹo: Thu thập tiền vàng, né tránh chướng ngại vật trong khung cảnh rừng xanh ngập tràn ánh nắng và âm thanh sống động!</i></p>
+        <div class="glow-tip">☀️ Mẹo: Thu thập tiền vàng, né tránh chướng ngại vật trong khung cảnh rừng xanh ngập tràn ánh nắng và âm thanh sống động!</div>
     </div>
     """, unsafe_allow_html=True)
 
