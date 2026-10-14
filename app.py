@@ -483,53 +483,66 @@ function draw() {
         }
     });
 
+    // --- VỊ TRÍ NHÂN CHÍNH (Đã được chỉnh lên rõ ràng ở trung tâm phía trước) ---
     let playerBaseX = 400;
-    if (playerLane === 0) playerBaseX = 310;
+    if (playerLane === 0) playerBaseX = 290;
     else if (playerLane === 1) playerBaseX = 400;
-    else if (playerLane === 2) playerBaseX = 490;
+    else if (playerLane === 2) playerBaseX = 510;
 
-    let playerDrawY = 380 + playerYOffset;
-    let legAnim = isJumping ? 0 : Math.sin(animTimer * 6) * 8;
+    let playerDrawY = 320 + playerYOffset;
+    let legAnim = isJumping ? 0 : Math.sin(animTimer * 6) * 10;
 
+    // Vòng hào quang sáng dưới chân nhân vật giúp dễ nhận diện
+    ctx.fillStyle = 'rgba(255, 235, 59, 0.4)';
+    ctx.beginPath();
+    ctx.ellipse(playerBaseX, playerDrawY + 15, 25, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Thân nhân vật
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(playerBaseX - 16, playerDrawY - 45, 32, 45);
+    ctx.fillRect(playerBaseX - 18, playerDrawY - 50, 36, 50);
+    // Ba lô
     ctx.fillStyle = '#e91e63';
-    ctx.fillRect(playerBaseX - 10, playerDrawY - 38, 20, 25);
+    ctx.fillRect(playerBaseX - 12, playerDrawY - 42, 24, 28);
+    // Đầu
     ctx.fillStyle = '#ffd1b3';
     ctx.beginPath();
-    ctx.arc(playerBaseX, playerDrawY - 55, 13, 0, Math.PI * 2);
+    ctx.arc(playerBaseX, playerDrawY - 62, 15, 0, Math.PI * 2);
     ctx.fill();
+    // Mũ đỏ
     ctx.fillStyle = '#e53935';
     ctx.beginPath();
-    ctx.arc(playerBaseX, playerDrawY - 58, 13, Math.PI, Math.PI * 2);
+    ctx.arc(playerBaseX, playerDrawY - 66, 15, Math.PI, Math.PI * 2);
     ctx.fill();
+    // Chân chạy
     ctx.fillStyle = '#1565c0';
-    ctx.fillRect(playerBaseX - 10, playerDrawY, 8, 18 + legAnim);
-    ctx.fillRect(playerBaseX + 2, playerDrawY, 8, 18 - legAnim);
+    ctx.fillRect(playerBaseX - 11, playerDrawY, 9, 22 + legAnim);
+    ctx.fillRect(playerBaseX + 2, playerDrawY, 9, 22 - legAnim);
 
+    // --- QUÁI VẬT XANH BÁM ĐUỔI NGAY PHÍA SAU ---
     let monsterBreath = Math.sin(animTimer * 5) * 6;
-    let monsterX = 400 + (playerLane - 1) * 40;
-    let monsterY = 430 + monsterBreath;
+    let monsterX = 400 + (playerLane - 1) * 35;
+    let monsterY = 390 + monsterBreath;
 
     ctx.fillStyle = '#00796b';
     ctx.beginPath();
-    ctx.arc(monsterX, monsterY, 45, 0, Math.PI * 2);
+    ctx.arc(monsterX, monsterY, 55, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#00897b';
     ctx.beginPath();
-    ctx.arc(monsterX, monsterY - 15, 28, 0, Math.PI * 2);
+    ctx.arc(monsterX, monsterY - 20, 35, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#ffeb3b';
     ctx.beginPath();
-    ctx.arc(monsterX - 10, monsterY - 18, 5, 0, Math.PI * 2);
-    ctx.arc(monsterX + 10, monsterY - 18, 5, 0, Math.PI * 2);
+    ctx.arc(monsterX - 12, monsterY - 25, 7, 0, Math.PI * 2);
+    ctx.arc(monsterX + 12, monsterY - 25, 7, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = '#d32f2f';
     ctx.beginPath();
-    ctx.arc(monsterX - 10, monsterY - 18, 2, 0, Math.PI * 2);
-    ctx.arc(monsterX + 10, monsterY - 18, 2, 0, Math.PI * 2);
+    ctx.arc(monsterX - 12, monsterY - 25, 3, 0, Math.PI * 2);
+    ctx.arc(monsterX + 12, monsterY - 25, 3, 0, Math.PI * 2);
     ctx.fill();
 
     if (gameOver) {
