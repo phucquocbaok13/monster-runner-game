@@ -3,7 +3,7 @@ import streamlit.components.v1 as components
 
 # Cấu hình trang Streamlit
 st.set_page_config(
-    page_title="Chạy Trốn Quái Vật Xanh - Forest Runner",
+    page_title="Chạy Trốn Quái Vật - Side Runner",
     page_icon="🏃",
     layout="centered"
 )
@@ -26,7 +26,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>🏃 CHẠY TRỐN QUÁI VẬT - VƯỢT CHƯỚNG NGẠI VẬT 🌳</h1>", unsafe_allow_html=True)
+st.markdown("<h1>🏃 CHẠY TRỐN QUÁI VẬT - GÓC NHÌN NGANG 🌳</h1>", unsafe_allow_html=True)
 
 # Phần hướng dẫn điều khiển sáng rực Neon
 with st.container():
@@ -62,20 +62,20 @@ with st.container():
     <div class="neon-instructions">
         <h3>🎮 HƯỚNG DẪN ĐIỀU KHIỂN:</h3>
         <ul>
-            <li><b>Phím SPACE (Dấu cách):</b> Nhảy qua chướng ngại vật thấp.</li>
-            <li><b>Phím A:</b> Né sang làn bên TRÁI.</li>
-            <li><b>Phím D:</b> Né sang làn bên PHẢI.</li>
+            <li><b>Phím SPACE (Dấu cách):</b> Nhảy qua chướng ngại vật (Cây đổ, đá).</li>
+            <li><b>Phím A:</b> Né lùi lại (xuống làn sau).</li>
+            <li><b>Phím D:</b> Tiến lên (lên làn trước).</li>
         </ul>
-        <p style="margin-bottom: 0;"><i>🔥 Mẹo: Quái vật xanh đang bám đuổi sát nút phía sau! Hãy tập trung cao độ, né tránh cây đổ, khúc cây và tảng đá lớn trong khu rừng u ám! Bật âm thanh để nghe nhạc nền căng thẳng.</i></p>
+        <p style="margin-bottom: 0;"><i>🔥 Mẹo: Quái vật xanh đang rượt sát phía sau! Hãy tập trung góc nhìn ngang để né tránh chướng ngại vật kịp thời và bật âm thanh để nghe nhạc nền căng thẳng nhé!</i></p>
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML/JS của trò chơi
+# Mã nguồn HTML/JS của trò chơi góc nhìn ngang
 game_html = """<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Monster Forest Runner</title>
+    <title>Monster Side Runner</title>
     <style>
         body {
             margin: 0;
@@ -97,7 +97,7 @@ game_html = """<!DOCTYPE html>
         }
         canvas {
             display: block;
-            background: #1a2416;
+            background: #151f16;
         }
         #ui {
             position: absolute;
@@ -110,6 +110,7 @@ game_html = """<!DOCTYPE html>
             font-weight: bold;
             text-shadow: 2px 2px #000;
             pointer-events: none;
+            z-index: 5;
         }
         #start-screen {
             position: absolute;
@@ -153,10 +154,10 @@ game_html = """<!DOCTYPE html>
     </div>
 
     <div id="start-screen">
-        <h1 style="color: #4caf50; margin-bottom: 5px; text-shadow: 0 0 10px #2e7d32;">RỪNG SÂU TỬ THẦN</h1>
-        <p style="max-width: 400px; color: #ccc; font-size: 14px; line-height: 1.4;">
-            Quái vật xanh khát máu đang đuổi theo sau lưng bạn!<br>
-            Sử dụng <b>A</b> (Trái), <b>D</b> (Phải) để đổi làn và <b>SPACE</b> để nhảy.
+        <h1 style="color: #4caf50; margin-bottom: 5px; text-shadow: 0 0 10px #2e7d32;">RỪNG SÂU TỬ THẦN - GÓC NHÌN NGANG</h1>
+        <p style="max-width: 450px; color: #ccc; font-size: 14px; line-height: 1.4;">
+            Quái vật xanh khát máu đang đuổi sát phía sau bạn!<br>
+            Sử dụng <b>SPACE</b> để nhảy, <b>A</b> và <b>D</b> để chuyển làn trước/sau.
         </p>
         <button class="btn" onclick="startGame()">BẮT ĐẦU CHẠY</button>
     </div>
@@ -171,7 +172,7 @@ const ctx = canvas.getContext('2d');
 let gameStarted = false;
 let score = 0;
 let gameOver = false;
-let gameSpeed = 6;
+let gameSpeed = 7;
 let animTimer = 0;
 
 let audioCtx = null;
@@ -231,39 +232,39 @@ function playSound(type) {
     osc.stop(audioCtx.currentTime + 0.3);
 }
 
-const lanes = [260, 400, 540]; 
-let playerLane = 1; 
-let playerY = 370;
+// 3 làn đường theo chiều dọc màn hình ngang (Y: 340, 390, 440)
+const laneYs = [340, 390, 440];
+let playerLane = 1; // 0: trên, 1: giữa, 2: dưới
+let playerBaseY = laneYs[playerLane];
+let playerX = 220;
+let playerY = playerBaseY;
 let playerJumpVY = 0;
 let isJumping = false;
 
 const player = {
-    x: lanes[1],
-    y: 370,
-    width: 40,
-    height: 75,
-    targetX: lanes[1]
+    width: 45,
+    height: 75
 };
 
 let obstacles = [];
-let forestScrollY = 0;
+let bgScrollX = 0;
 
 window.addEventListener('keydown', (e) => {
     if (!gameStarted || gameOver) return;
     
-    if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
+    if (e.code === 'KeyA' || e.code === 'ArrowUp') {
         if (playerLane > 0) {
             playerLane--;
-            player.targetX = lanes[playerLane];
+            playerBaseY = laneYs[playerLane];
         }
-    } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
+    } else if (e.code === 'KeyD' || e.code === 'ArrowDown') {
         if (playerLane < 2) {
             playerLane++;
-            player.targetX = lanes[playerLane];
+            playerBaseY = laneYs[playerLane];
         }
     } else if (e.code === 'Space' && !isJumping) {
         isJumping = true;
-        playerJumpVY = -12;
+        playerJumpVY = -13;
         playSound('jump');
         e.preventDefault();
     }
@@ -273,14 +274,16 @@ function startGame() {
     gameStarted = true;
     gameOver = false;
     score = 0;
-    gameSpeed = 6;
+    gameSpeed = 7;
     obstacles = [];
     playerLane = 1;
-    player.targetX = lanes[1];
+    playerBaseY = laneYs[playerLane];
+    playerY = playerBaseY;
     document.getElementById('start-screen').style.display = 'none';
     initAudio();
 }
 
+// Sinh chướng ngại vật xuất hiện từ bên phải chạy về phía trái
 function spawnObstacle() {
     if (!gameStarted || gameOver) return;
     let lane = Math.floor(Math.random() * 3);
@@ -289,45 +292,51 @@ function spawnObstacle() {
     
     obstacles.push({
         lane: lane,
-        x: lanes[lane],
-        y: -50,
+        x: 850,
+        y: laneYs[lane],
         type: type,
         width: 60,
-        height: type === 'fallen_tree' ? 40 : 50
+        height: 45
     });
 }
 
-setInterval(spawnObstacle, 1400);
+setInterval(spawnObstacle, 1600);
 
 function update() {
     if (!gameStarted || gameOver) return;
 
     score += 1;
-    animTimer += 0.15;
-    gameSpeed = 6 + Math.floor(score / 300);
+    animTimer += 0.2;
+    gameSpeed = 7 + Math.floor(score / 350);
 
-    player.x += (player.targetX - player.x) * 0.2;
+    // Mượt mà vị trí Y khi đổi làn
+    playerY += (playerBaseY - playerY) * 0.3;
 
+    // Xử lý nhảy
     if (isJumping) {
-        player.y += playerJumpVY;
-        playerJumpVY += 0.6;
-        if (player.y >= 370) {
-            player.y = 370;
+        playerY += playerJumpVY;
+        playerJumpVY += 0.65;
+        if (playerY >= playerBaseY) {
+            playerY = playerBaseY;
             isJumping = false;
         }
     }
 
-    forestScrollY += gameSpeed * 1.5;
+    // Cuộn cảnh nền ngang
+    bgScrollX += gameSpeed;
 
+    // Cập nhật chướng ngại vật
     for (let i = obstacles.length - 1; i >= 0; i--) {
         let obs = obstacles[i];
-        obs.y += gameSpeed;
+        obs.x -= gameSpeed;
 
+        // Kiểm tra va chạm (cùng làn, ngang tầm và không đang nhảy cao qua đá)
         let inSameLane = playerLane === obs.lane;
-        let isHitY = (player.y + player.height > obs.y && player.y < obs.y + obs.height);
-        
-        if (inSameLane && isHitY) {
-            if (obs.type === 'rock' && isJumping && player.y < obs.y) {
+        let isHitX = (playerX + player.width - 10 > obs.x && playerX < obs.x + obs.width - 10);
+        let isHitY = (playerY >= obs.y - 30); // đang ở trên mặt đất làn đó
+
+        if (inSameLane && isHitX && isHitY) {
+            if (obs.type === 'rock' && isJumping && playerY < obs.y - 15) {
                 // Nhảy qua an toàn
             } else {
                 gameOver = true;
@@ -335,7 +344,8 @@ function update() {
             }
         }
 
-        if (obs.y > 550) {
+        // Xóa vật cản khi chạy qua trái màn hình
+        if (obs.x < -100) {
             obstacles.splice(i, 1);
         }
     }
@@ -344,165 +354,48 @@ function update() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = '#1c281d';
+    // 1. Nền rừng ngang u ám (Parallax background)
+    ctx.fillStyle = '#111912';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.beginPath();
-    ctx.moveTo(150, 0);
-    ctx.lineTo(650, 0);
-    ctx.lineTo(750, 500);
-    ctx.lineTo(50, 500);
-    ctx.fillStyle = '#263828';
-    ctx.fill();
+    // Vẽ lớp cây hậu cảnh xa
+    ctx.fillStyle = '#1a261c';
+    for (let i = -1; i < 5; i++) {
+        let treeX = (i * 250 - (bgScrollX * 0.3) % 250);
+        ctx.beginPath();
+        ctx.arc(treeX, 180, 70, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(treeX - 12, 180, 24, 150);
+    }
 
-    ctx.strokeStyle = '#3e5c40';
-    ctx.lineWidth = 4;
-    ctx.setLineDash([15, 15]);
-    ctx.lineDashOffset = -forestScrollY;
-    
+    // 2. Các con đường chạy ngang (3 làn)
+    ctx.fillStyle = '#223324';
+    ctx.fillRect(0, 310, canvas.width, 170);
+
+    // Vạch kẻ ngang phân chia làn đường
+    ctx.strokeStyle = '#3d5c40';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([20, 20]);
+    ctx.lineDashOffset = -bgScrollX;
+
     ctx.beginPath();
-    ctx.moveTo(333, 0); ctx.lineTo(316, 500);
+    ctx.moveTo(0, 365); ctx.lineTo(canvas.width, 365);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(466, 0); ctx.lineTo(483, 500);
+    ctx.moveTo(0, 420); ctx.lineTo(canvas.width, 420);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = '#0d140e';
-    for (let i = -2; i < 6; i++) {
-        let treeY = (i * 120 + forestScrollY) % 600 - 50;
-        ctx.beginPath();
-        ctx.arc(40, treeY, 45, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(760, treeY + 60, 45, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    obstacles.forEach(obs => {
-        let renderX = obs.x;
-        let renderY = obs.y;
-        
-        if (obs.type === 'rock') {
-            ctx.fillStyle = '#4a5568';
-            ctx.beginPath();
-            ctx.arc(renderX, renderY + 25, 28, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#718096';
-            ctx.beginPath();
-            ctx.arc(renderX - 5, renderY + 20, 12, 0, Math.PI * 2);
-            ctx.fill();
-        } else if (obs.type === 'fallen_tree') {
-            ctx.fillStyle = '#5c4033';
-            ctx.fillRect(renderX - 45, renderY + 10, 90, 25);
-            ctx.fillStyle = '#2e7d32';
-            ctx.beginPath();
-            ctx.arc(renderX - 40, renderY + 20, 18, 0, Math.PI * 2);
-            ctx.fill();
-        } else if (obs.type === 'tree_stump') {
-            ctx.fillStyle = '#6e4f3a';
-            ctx.fillRect(renderX - 25, renderY + 15, 50, 35);
-            ctx.fillStyle = '#3b2219';
-            ctx.beginPath();
-            ctx.ellipse(renderX, renderY + 15, 25, 10, 0, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    });
-
-    // Nhân vật chạy
-    let legOffset = isJumping ? 0 : Math.sin(animTimer * 5) * 12;
-    ctx.fillStyle = '#ffcc00';
-    ctx.fillRect(player.x - 14, player.y + 15, 28, 32);
-    ctx.fillStyle = '#ffd1b3';
-    ctx.beginPath();
-    ctx.arc(player.x, player.y + 5, 12, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#b26500';
-    ctx.beginPath();
-    ctx.arc(player.x, player.y + 2, 12, Math.PI, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#ffcc00';
-    ctx.fillRect(player.x - 20, player.y + 20, 6, 20);
-    ctx.fillRect(player.x + 14, player.y + 20, 6, 20);
-    ctx.fillStyle = '#1a237e';
-    ctx.fillRect(player.x - 10, player.y + 47, 8, 22 + legOffset);
-    ctx.fillRect(player.x + 2, player.y + 47, 8, 22 - legOffset);
-
-    // Quái vật xanh bám đuổi
-    let monsterBreath = Math.sin(animTimer * 3) * 5;
-    ctx.fillStyle = '#004d40';
-    ctx.beginPath();
-    ctx.moveTo(220, 490);
-    ctx.lineTo(400, 410 + monsterBreath);
-    ctx.lineTo(580, 490);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = '#00695c';
-    ctx.beginPath();
-    ctx.arc(400, 430 + monsterBreath, 35, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#00251a';
-    ctx.beginPath();
-    ctx.arc(400, 440 + monsterBreath, 20, 0, Math.PI);
-    ctx.fill();
+    // Sắp xếp vật thể theo thứ tự Y để tạo chiều sâu chân thực
+    let renderObjects = [];
+    obstacles.forEach(obs => renderObjects.push({type: 'obs', obj: obs, y: obs.y}));
     
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.moveTo(385, 440 + monsterBreath); ctx.lineTo(390, 450 + monsterBreath); ctx.lineTo(395, 440 + monsterBreath);
-    ctx.moveTo(405, 440 + monsterBreath); ctx.lineTo(410, 450 + monsterBreath); ctx.lineTo(415, 440 + monsterBreath);
-    ctx.fill();
+    // Thêm nhân vật và quái vật vào danh sách render theo thứ tự làn
+    renderObjects.push({type: 'player', y: playerBaseY});
+    renderObjects.push({type: 'monster', y: laneYs[1] + 20});
 
-    ctx.fillStyle = '#ffea00';
-    ctx.beginPath();
-    ctx.arc(385, 422 + monsterBreath, 6, 0, Math.PI * 2);
-    ctx.arc(415, 422 + monsterBreath, 6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#ff3d00';
-    ctx.beginPath();
-    ctx.arc(385, 422 + monsterBreath, 2.5, 0, Math.PI * 2);
-    ctx.arc(415, 422 + monsterBreath, 2.5, 0, Math.PI * 2);
-    ctx.fill();
+    // Sắp xếp từ trên xuống dưới (để vật ở dưới che vật ở trên)
+    renderObjects.sort((a, b) => a.y - b.y);
 
-    if (gameOver) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.fillStyle = '#ff3333';
-        ctx.font = 'bold 42px "Courier New"';
-        ctx.textAlign = 'center';
-        ctx.fillText('BẠN ĐÃ BỊ QUÁI VẬT XANH BẮT!', canvas.width / 2, 200);
-        
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '24px "Courier New"';
-        ctx.fillText('Điểm đạt được: ' + score, canvas.width / 2, 260);
-        
-        ctx.fillStyle = '#aaaaaa';
-        ctx.font = '16px "Courier New"';
-        ctx.fillText('Nhấn nút dưới để thử lại', canvas.width / 2, 310);
-        
-        document.getElementById('start-screen').style.display = 'flex';
-        document.getElementById('start-screen').querySelector('h1').innerText = 'THUA MẤT RỒI!';
-        document.getElementById('start-screen').querySelector('button').innerText = 'CHƠI LẠI NGAY';
-    }
-
-    document.getElementById('score-display').innerText = 'ĐIỂM: ' + score;
-}
-
-function gameLoop() {
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
-}
-
-gameLoop();
-</script>
-
-</body>
-</html>
-"""
-
-# Hiển thị game vào Streamlit component
-components.html(game_html, height=580, scrolling=False)
+    renderObjects.forEach(
