@@ -3,7 +3,7 @@ import streamlit.components.v1 as components
 
 # Cấu hình trang Streamlit
 st.set_page_config(
-    page_title="Chạy Trốn Quái Vật - Forest Runner",
+    page_title="Chạy Trốn Quái Vật Xanh - Forest Runner",
     page_icon="🏃",
     layout="centered"
 )
@@ -71,8 +71,7 @@ with st.container():
     """, unsafe_allow_html=True)
 
 # Mã nguồn HTML/JS của trò chơi
-game_html = """
-<!DOCTYPE html>
+game_html = """<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -175,7 +174,6 @@ let gameOver = false;
 let gameSpeed = 6;
 let animTimer = 0;
 
-// Âm thanh căng thẳng bằng Web Audio API
 let audioCtx = null;
 let musicInterval = null;
 
@@ -233,7 +231,6 @@ function playSound(type) {
     osc.stop(audioCtx.currentTime + 0.3);
 }
 
-// Làn đường (3 làn: 0: Trái, 1: Giữa, 2: Phải)
 const lanes = [260, 400, 540]; 
 let playerLane = 1; 
 let playerY = 370;
@@ -251,7 +248,6 @@ const player = {
 let obstacles = [];
 let forestScrollY = 0;
 
-// Xử lý phím bấm
 window.addEventListener('keydown', (e) => {
     if (!gameStarted || gameOver) return;
     
@@ -285,7 +281,6 @@ function startGame() {
     initAudio();
 }
 
-// Sinh chướng ngại vật ngẫu nhiên trên 3 làn
 function spawnObstacle() {
     if (!gameStarted || gameOver) return;
     let lane = Math.floor(Math.random() * 3);
@@ -349,7 +344,6 @@ function update() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 1. Nền rừng rậm u ám
     ctx.fillStyle = '#1c281d';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -386,7 +380,6 @@ function draw() {
         ctx.fill();
     }
 
-    // 2. Chướng ngại vật
     obstacles.forEach(obs => {
         let renderX = obs.x;
         let renderY = obs.y;
@@ -417,35 +410,99 @@ function draw() {
         }
     });
 
-    // 3. NHÂN VẬT (Có chân đang chạy hoạt hoạ)
+    // Nhân vật chạy
     let legOffset = isJumping ? 0 : Math.sin(animTimer * 5) * 12;
-    
-    // Thân áo
     ctx.fillStyle = '#ffcc00';
     ctx.fillRect(player.x - 14, player.y + 15, 28, 32);
-    // Đầu nhân vật
     ctx.fillStyle = '#ffd1b3';
     ctx.beginPath();
     ctx.arc(player.x, player.y + 5, 12, 0, Math.PI * 2);
     ctx.fill();
-    // Tóc/Mũ
     ctx.fillStyle = '#b26500';
     ctx.beginPath();
     ctx.arc(player.x, player.y + 2, 12, Math.PI, Math.PI * 2);
     ctx.fill();
-    // Tay đang đánh nhịp chạy
     ctx.fillStyle = '#ffcc00';
     ctx.fillRect(player.x - 20, player.y + 20, 6, 20);
     ctx.fillRect(player.x + 14, player.y + 20, 6, 20);
-    // Hai chân đang chạy
     ctx.fillStyle = '#1a237e';
     ctx.fillRect(player.x - 10, player.y + 47, 8, 22 + legOffset);
     ctx.fillRect(player.x + 2, player.y + 47, 8, 22 - legOffset);
 
-    // 4. QUÁI VẬT MÀU XANH BÁM ĐUỔI PHÍA SAU
+    // Quái vật xanh bám đuổi
     let monsterBreath = Math.sin(animTimer * 3) * 5;
-    ctx.fillStyle = '#004d40'; // Xanh ngọc đậm u tối
+    ctx.fillStyle = '#004d40';
     ctx.beginPath();
     ctx.moveTo(220, 490);
     ctx.lineTo(400, 410 + monsterBreath);
-    ctx.lineTo(580,
+    ctx.lineTo(580, 490);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#00695c';
+    ctx.beginPath();
+    ctx.arc(400, 430 + monsterBreath, 35, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#00251a';
+    ctx.beginPath();
+    ctx.arc(400, 440 + monsterBreath, 20, 0, Math.PI);
+    ctx.fill();
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(385, 440 + monsterBreath); ctx.lineTo(390, 450 + monsterBreath); ctx.lineTo(395, 440 + monsterBreath);
+    ctx.moveTo(405, 440 + monsterBreath); ctx.lineTo(410, 450 + monsterBreath); ctx.lineTo(415, 440 + monsterBreath);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffea00';
+    ctx.beginPath();
+    ctx.arc(385, 422 + monsterBreath, 6, 0, Math.PI * 2);
+    ctx.arc(415, 422 + monsterBreath, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ff3d00';
+    ctx.beginPath();
+    ctx.arc(385, 422 + monsterBreath, 2.5, 0, Math.PI * 2);
+    ctx.arc(415, 422 + monsterBreath, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (gameOver) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#ff3333';
+        ctx.font = 'bold 42px "Courier New"';
+        ctx.textAlign = 'center';
+        ctx.fillText('BẠN ĐÃ BỊ QUÁI VẬT XANH BẮT!', canvas.width / 2, 200);
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '24px "Courier New"';
+        ctx.fillText('Điểm đạt được: ' + score, canvas.width / 2, 260);
+        
+        ctx.fillStyle = '#aaaaaa';
+        ctx.font = '16px "Courier New"';
+        ctx.fillText('Nhấn nút dưới để thử lại', canvas.width / 2, 310);
+        
+        document.getElementById('start-screen').style.display = 'flex';
+        document.getElementById('start-screen').querySelector('h1').innerText = 'THUA MẤT RỒI!';
+        document.getElementById('start-screen').querySelector('button').innerText = 'CHƠI LẠI NGAY';
+    }
+
+    document.getElementById('score-display').innerText = 'ĐIỂM: ' + score;
+}
+
+function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+
+</body>
+</html>
+"""
+
+# Hiển thị game vào Streamlit component
+components.html(game_html, height=580, scrolling=False)
