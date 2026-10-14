@@ -28,7 +28,7 @@ st.markdown("""
 
 st.markdown("<h1>🌲 CHẠY TRỐN QUÁI VẬT - RỪNG ĐÊM 3D 🌙</h1>", unsafe_allow_html=True)
 
-# Hướng dẫn điều khiển
+# Hướng dẫn điều khiển chỉ dùng phím mũi tên
 with st.container():
     st.markdown("""
     <style>
@@ -48,15 +48,15 @@ with st.container():
     <div class="box-hd">
         <h3>🎮 ĐIỀU KHIỂN TRÒ CHƠI:</h3>
         <ul>
-            <li><b>Phím W / Mũi tên Lên:</b> Nhảy lên tránh chướng ngại vật.</li>
-            <li><b>Phím A / Mũi tên Trái:</b> Chuyển sang làn TRÁI.</li>
-            <li><b>Phím D / Mũi tên Phải:</b> Chuyển sang làn PHẢI.</li>
+            <li><b>Mũi tên Lên (⬆️):</b> Nhảy lên tránh chướng ngại vật.</li>
+            <li><b>Mũi tên Trái (⬅️):</b> Chuyển sang làn TRÁI.</li>
+            <li><b>Mũi tên Phải (➡️):</b> Chuyển sang làn PHẢI.</li>
         </ul>
-        <div class="tip">💡 Mẹo: Thao tác phím W nhảy mượt mà, nhân vật hoodie xám và quái vật xanh neon bứt tốc rõ nét!</div>
+        <div class="tip">💡 Mẹo: Dùng phím mũi tên điều khiển cực kỳ mượt mà, không sợ xung đột phím!</div>
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML/JS trò chơi được tinh chỉnh gọn gàng
+# Mã nguồn HTML/JS tinh gọn, chỉ nhận phím Mũi tên
 game_code = (
     "<!DOCTYPE html>"
     "<html lang='vi'>"
@@ -84,8 +84,8 @@ game_code = (
     "<div id='menu'>"
     "<h1 style='color: #38bdf8; margin-bottom: 10px; text-shadow: 0 0 15px #0284c7;'>RỪNG ĐÊM 3D: BỨT TỐC</h1>"
     "<p style='max-width: 450px; color: #94a3b8; font-size: 15px; line-height: 1.5;'>"
-    "Nhân vật bứt tốc mạnh mẽ, thu thập đồng xu lớn kèm hiệu ứng!<br>"
-    "Dùng phím <b>W</b> để nhảy, <b>A / D</b> để né tránh chướng ngại vật!"
+    "Sử dụng các phím mũi tên để điều khiển nhân vật!<br>"
+    "<b>Mũi tên Lên</b> để nhảy, <b>Trái / Phải</b> để né tránh chướng ngại vật."
     "</p>"
     "<button class='play-btn' onclick='startTheGame()'>BẮT ĐẦU CHƠI</button>"
     "</div>"
@@ -100,9 +100,9 @@ game_code = (
     "let obstacles = [], coinList = [], floatTexts = [], roadOffset = 0;"
     "window.addEventListener('keydown', (e) => {"
     "  if (!playing) return;"
-    "  if (e.code === 'KeyA' || e.code === 'ArrowLeft') { if (currentLane > 0) currentLane--; e.preventDefault(); }"
-    "  else if (e.code === 'KeyD' || e.code === 'ArrowRight') { if (currentLane < 2) currentLane++; e.preventDefault(); }"
-    "  else if (e.code === 'KeyW' || e.code === 'ArrowUp') { if (!isJumping) { isJumping = true; jumpVY = -13; } e.preventDefault(); }"
+    "  if (e.code === 'ArrowLeft') { if (currentLane > 0) currentLane--; e.preventDefault(); }"
+    "  else if (e.code === 'ArrowRight') { if (currentLane < 2) currentLane++; e.preventDefault(); }"
+    "  else if (e.code === 'ArrowUp') { if (!isJumping) { isJumping = true; jumpVY = -13; } e.preventDefault(); }"
     "});"
     "function startTheGame() {"
     "  playing = true; score = 0; coins = 0; speed = 6.5; currentLane = 1; jumpY = 0; isJumping = false; obstacles = []; coinList = []; floatTexts = [];"
