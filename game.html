@@ -24,7 +24,7 @@
         }
         canvas {
             display: block;
-            background: linear-gradient(to bottom, #87ceeb, #e0f6ff);
+            background: linear-gradient(to bottom, #4fc3f7, #e1f5fe);
         }
         #ui {
             position: absolute;
@@ -174,7 +174,7 @@ function playSound(type) {
     osc.stop(audioCtx.currentTime + 0.3);
 }
 
-const roadHorizonY = 180;
+const roadHorizonY = 160;
 const roadBottomY = 500;
 
 let playerLane = 1; 
@@ -298,7 +298,7 @@ function draw() {
 
     ctx.fillStyle = 'rgba(255, 235, 59, 0.85)';
     ctx.beginPath();
-    ctx.arc(650, 70, 40, 0, Math.PI * 2);
+    ctx.arc(650, 60, 35, 0, Math.PI * 2);
     ctx.fill();
 
     let groundGrad = ctx.createLinearGradient(0, roadHorizonY, 0, roadBottomY);
@@ -309,8 +309,8 @@ function draw() {
 
     ctx.beginPath();
     ctx.moveTo(400, roadHorizonY);
-    ctx.lineTo(200, roadBottomY);
-    ctx.lineTo(600, roadBottomY);
+    ctx.lineTo(180, roadBottomY);
+    ctx.lineTo(620, roadBottomY);
     ctx.closePath();
     ctx.fillStyle = '#8d6e63';
     ctx.fill();
@@ -318,16 +318,16 @@ function draw() {
     ctx.strokeStyle = '#4e342e';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(400, roadHorizonY); ctx.lineTo(300, roadBottomY);
-    ctx.moveTo(400, roadHorizonY); ctx.lineTo(500, roadBottomY);
+    ctx.moveTo(400, roadHorizonY); ctx.lineTo(290, roadBottomY);
+    ctx.moveTo(400, roadHorizonY); ctx.lineTo(510, roadBottomY);
     ctx.stroke();
 
     for (let i = -2; i < 8; i++) {
         let treeProgress = (i * 0.2 + (roadScroll * 0.0012)) % 1.0;
         let treeY = roadHorizonY + treeProgress * (roadBottomY - roadHorizonY);
-        let leftX = 400 - treeProgress * 320;
-        let rightX = 400 + treeProgress * 320;
-        let radius = 15 + treeProgress * 45;
+        let leftX = 400 - treeProgress * 340;
+        let rightX = 400 + treeProgress * 340;
+        let radius = 15 + treeProgress * 50;
 
         ctx.fillStyle = '#5d4037';
         ctx.fillRect(leftX - 4, treeY, 8, 30);
@@ -358,9 +358,9 @@ function draw() {
         let lane = item.data.lane;
         
         let targetX = 400;
-        if (lane === 0) targetX = 400 - p * 200;
+        if (lane === 0) targetX = 400 - p * 220;
         else if (lane === 1) targetX = 400;
-        else if (lane === 2) targetX = 400 + p * 200;
+        else if (lane === 2) targetX = 400 + p * 220;
 
         let scale = 0.2 + p * 0.8;
 
@@ -402,12 +402,13 @@ function draw() {
         }
     });
 
+    // VỊ TRÍ NHÂN VẬT ĐÃ ĐƯỢC ĐIỀU CHỈNH CHUẨN XÁC Ở GIỮA MÀN HÌNH
     let playerBaseX = 400;
-    if (playerLane === 0) playerBaseX = 300;
+    if (playerLane === 0) playerBaseX = 310;
     else if (playerLane === 1) playerBaseX = 400;
-    else if (playerLane === 2) playerBaseX = 500;
+    else if (playerLane === 2) playerBaseX = 490;
 
-    let playerDrawY = 440 + playerYOffset;
+    let playerDrawY = 380 + playerYOffset;
     let legAnim = isJumping ? 0 : Math.sin(animTimer * 6) * 8;
 
     ctx.fillStyle = '#ffffff';
@@ -426,29 +427,30 @@ function draw() {
     ctx.fillRect(playerBaseX - 10, playerDrawY, 8, 18 + legAnim);
     ctx.fillRect(playerBaseX + 2, playerDrawY, 8, 18 - legAnim);
 
+    // QUÁI VẬT XANH BÁM ĐUỔI PHÍA SAU
     let monsterBreath = Math.sin(animTimer * 5) * 6;
-    let monsterX = 400 + (playerLane - 1) * 50;
-    let monsterY = 480 + monsterBreath;
+    let monsterX = 400 + (playerLane - 1) * 40;
+    let monsterY = 430 + monsterBreath;
 
     ctx.fillStyle = '#00796b';
     ctx.beginPath();
-    ctx.arc(monsterX, monsterY, 50, 0, Math.PI * 2);
+    ctx.arc(monsterX, monsterY, 45, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#00897b';
     ctx.beginPath();
-    ctx.arc(monsterX, monsterY - 18, 32, 0, Math.PI * 2);
+    ctx.arc(monsterX, monsterY - 15, 28, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#ffeb3b';
     ctx.beginPath();
-    ctx.arc(monsterX - 12, monsterY - 22, 6, 0, Math.PI * 2);
-    ctx.arc(monsterX + 12, monsterY - 22, 6, 0, Math.PI * 2);
+    ctx.arc(monsterX - 10, monsterY - 18, 5, 0, Math.PI * 2);
+    ctx.arc(monsterX + 10, monsterY - 18, 5, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = '#d32f2f';
     ctx.beginPath();
-    ctx.arc(monsterX - 12, monsterY - 22, 2.5, 0, Math.PI * 2);
-    ctx.arc(monsterX + 12, monsterY - 22, 2.5, 0, Math.PI * 2);
+    ctx.arc(monsterX - 10, monsterY - 18, 2, 0, Math.PI * 2);
+    ctx.arc(monsterX + 10, monsterY - 18, 2, 0, Math.PI * 2);
     ctx.fill();
 
     if (gameOver) {
