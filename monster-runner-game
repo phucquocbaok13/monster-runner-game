@@ -36,17 +36,44 @@ st.markdown("<h1>🏃 CHẠY TRỐN QUÁI VẬT - VƯỢT CHƯỚNG NGẠI VẬT
 
 with st.container():
     st.markdown("""
-    <div class="instructions">
-        <h3>🎮 Hướng dẫn điều khiển:</h3>
+    <style>
+    .neon-instructions {
+        background: linear-gradient(135deg, #1e2530 0%, #2a1515 100%);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 2px solid #ff4b4b;
+        box-shadow: 0 0 15px rgba(255, 75, 75, 0.6);
+    }
+    .neon-instructions h3 {
+        color: #ff6b6b;
+        text-shadow: 0 0 8px rgba(255, 107, 107, 0.8);
+        margin-top: 0;
+    }
+    .neon-instructions li {
+        color: #ffffff;
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+    .neon-instructions b {
+        color: #ffcc00;
+        text-shadow: 0 0 5px rgba(255, 204, 0, 0.6);
+    }
+    .neon-instructions i {
+        color: #00ffcc;
+    }
+    </style>
+    
+    <div class="neon-instructions">
+        <h3>🎮 HƯỚNG DẪN ĐIỀU KHIỂN:</h3>
         <ul>
             <li><b>Phím SPACE (Dấu cách):</b> Nhảy qua chướng ngại vật thấp.</li>
             <li><b>Phím A:</b> Né sang làn bên TRÁI.</li>
             <li><b>Phím D:</b> Né sang làn bên PHẢI.</li>
         </ul>
-        <p><i>Mẹo: Quái vật đang bám đuổi sát nút phía sau! Hãy tập trung cao độ, né tránh cây đổ, khúc cây và tảng đá lớn trong khu rừng u ám! Bật âm thanh để nghe nhạc nền căng thẳng.</i></p>
+        <p style="margin-bottom: 0;"><i>🔥 Mẹo: Quái vật đang bám đuổi sát nút phía sau! Hãy tập trung cao độ, né tránh cây đổ, khúc cây và tảng đá lớn trong khu rừng u ám! Bật âm thanh để nghe nhạc nền căng thẳng.</i></p>
     </div>
     """, unsafe_allow_html=True)
-
 # Mã nguồn HTML/JS của trò chơi
 game_html = """
 <!DOCTYPE html>
