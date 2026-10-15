@@ -19,68 +19,50 @@ h1 { text-align: center; color: #00ffff; text-shadow: 0 0 15px rgba(0, 255, 255,
 
 st.markdown("<h1>CHẠY TRỐN QUÁI VẬT - RỪNG ĐÊM</h1>", unsafe_allow_html=True)
 
-html_parts = [
-    "<!DOCTYPE html>",
-    "<html lang='vi'>",
-    "<head>",
-    "<meta charset='UTF-8'>",
-    "<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>",
-    "<title>Night Forest RPG</title>",
-    "<style>",
-    "body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: monospace; color: white; overflow: hidden; touch-action: none; }",
-    "#game-wrap { position: relative; width: 100%; max-width: 800px; box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); border-radius: 8px; overflow: hidden; }",
-    "canvas { display: block; width: 100%; height: auto; background: #030712; }",
-    "#hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; text-shadow: 2px 2px #000; pointer-events: none; z-index: 5; }",
-    ".badge { background: rgba(15, 23, 42, 0.85); padding: 5px 10px; border-radius: 6px; border: 1px solid #38bdf8; }",
-    ".screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 10; padding: 20px; box-sizing: border-box; }",
-    ".hidden { display: none !important; }",
-    ".btn { background: #0284c7; color: white; border: none; padding: 12px 28px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin: 6px; box-shadow: 0 0 15px #38bdf8; transition: 0.2s; width: 260px; max-width: 100%; }",
-    ".btn:hover { background: #38bdf8; color: #0f172a; transform: scale(1.03); }",
-    ".btn-secondary { background: #475569; box-shadow: 0 0 10px #94a3b8; }",
-    ".btn-secondary:hover { background: #94a3b8; color: #0f172a; }",
-    ".panel-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 460px; max-height: 280px; overflow-y: auto; margin: 10px 0; padding: 5px; }",
-    ".item-card { background: rgba(30, 41, 59, 0.85); border: 1px solid #38bdf8; border-radius: 8px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }",
-    ".preview-cvs { width: 50px; height: 60px; border-radius: 6px; border: 1px solid #38bdf8; background: #0f172a; flex-shrink: 0; }",
-    "</style>",
-    "</head>",
-    "<body>",
-    "<div id='game-wrap'>",
-    "  <div id='hud' class='hidden'>",
-    "    <div class='badge'>ĐIỂM: <span id='score'>0</span></div>",
-    "    <div class='badge' style='color: #fde047;'>VÀNG: <span id='coins'>0</span></div>",
-    "    <div class='badge' style='color: #38bdf8;'>KIM CƯƠNG: <span id='diamonds'>0</span></div>",
-    "  </div>",
-    "  <div id='screen-home' class='screen'>",
-    "    <h1 style='color: #38bdf8; font-size: 26px; text-shadow: 0 0 15px #0284c7; margin-bottom: 5px;'>CHẠY TRỐN QUÁI VẬT</h1>",
-    "    <p style='color: #94a3b8; font-size: 13px; margin-bottom: 15px;'>Khám phá Rừng Đêm, thu thập tài nguyên và sinh tồn!</p>",
-    "    <div style='margin-bottom: 15px; font-size: 15px; color: #fde047;'>🪙 Vàng: <span id='home-coins'>0</span> | 💎 Kim cương: <span id='home-diamonds'>0</span></div>",
-    "    <button class='btn' onclick='startGame()'>BẮT ĐẦU CHƠI</button>",
-    "    <button class='btn btn-secondary' onclick='showScreen(\"screen-tutorial\")'>HƯỚNG DẪN CÁCH CHƠI</button>",
-    "    <button class='btn btn-secondary' onclick='showScreen(\"screen-shop\")'>CỬA HÀNG TRANG PHỤC</button>",
-    "    <button class='btn btn-secondary' onclick='showScreen(\"screen-quests\")'>NHIỆM VỤ NHẬN THƯỞNG</button>",
-    "  </div>",
-    "  <div id='screen-tutorial' class='screen hidden'>",
-    "    <h2 style='color: #38bdf8; margin-top:0;'>HƯỚNG DẪN CÁCH CHƠI</h2>",
-    "    <div style='text-align: left; max-width: 420px; font-size: 13px; line-height: 1.5; color: #f8fafc; background: rgba(15, 23, 42, 0.9); padding: 15px; border-radius: 8px; border: 1px solid #38bdf8; margin-bottom: 15px;'>",
-    "      <p style='margin:0 0 8px 0;'><b>📱 Điện thoại:</b> Vuốt màn hình<br>- Vuốt trái/phải: Đổi làn đường.<br>- Vuốt lên: Nhảy tránh chướng ngại vật.</p>",
-    "      <p style='margin:0 0 8px 0;'><b>💻 Máy tính:</b> Dùng các phím Mũi tên<br>- Mũi tên Trái / Phải: Đổi làn đường.<br>- Mũi tên Lên: Nhảy.</p>",
-    "      <p style='margin:0;'><b>🎯 Mục tiêu:</b> Né tránh đá, khúc cây và cây xanh; thu thập Vàng và Kim cương để mở khóa trang phục!</p>",
-    "    </div>",
-    "    <button class='btn btn-secondary' onclick='showScreen(\"screen-home\")'>QUAY LẠI</button>",
-    "  </div>",
-    "  <div id='screen-shop' class='screen hidden'>",
-    "    <h2 style='color: #38bdf8; margin-top:0;'>CỬA HÀNG TRANG PHỤC</h2>",
-    "    <div style='font-size: 14px; color: #fde047; margin-bottom: 5px;'>💎 Kim cương hiện có: <span id='shop-diamonds'>0</span></div>",
-    "    <div class='panel-grid' id='shop-list'></div>",
-    "    <button class='btn btn-secondary' onclick='showScreen(\"screen-home\")'>QUAY LẠI</button>",
-    "  </div>",
-    "  <div id='screen-quests' class='screen hidden'>",
-    "    <h2 style='color: #38bdf8; margin-top:0;'>HỆ THỐNG NHIỆM VỤ</h2>",
-    "    <div class='panel-grid' id='quest-list'></div>",
-    "    <button class='btn btn-secondary' onclick='showScreen(\"screen-home\")'>QUAY LẠI</button>",
-    "  </div>",
-    "  <div id='screen-gameover' class='screen hidden'>",
-    "    <h1 style='color: #f43f5e; font-size: 28px; margin-bottom: 10px;'>BẠN ĐÃ BỊ TÚM TÓC!</h1>",
-    "    <p style='color: #fde047; font-size: 16px; margin: 4px;'>⭐ Điểm đạt được: <span id='go-score'>0</span></p>",
-    "    <p style='color: #fde047; font-size: 14px; margin: 4px;'>🪙 Vàng nhặt: +<span id='go-coins'>0</span> | 💎 Kim cương: +<span id='go-diamonds'>0</span></p>",
-    "    <button class='btn' onclick='
+html_code = """
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Night Forest RPG</title>
+<style>
+body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: monospace; color: white; overflow: hidden; touch-action: none; }
+#game-wrap { position: relative; width: 100%; max-width: 800px; box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); border-radius: 8px; overflow: hidden; }
+canvas { display: block; width: 100%; height: auto; background: #030712; }
+#hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; text-shadow: 2px 2px #000; pointer-events: none; z-index: 5; }
+.badge { background: rgba(15, 23, 42, 0.85); padding: 5px 10px; border-radius: 6px; border: 1px solid #38bdf8; }
+.screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 10; padding: 20px; box-sizing: border-box; }
+.hidden { display: none !important; }
+.btn { background: #0284c7; color: white; border: none; padding: 12px 28px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin: 6px; box-shadow: 0 0 15px #38bdf8; transition: 0.2s; width: 260px; max-width: 100%; }
+.btn:hover { background: #38bdf8; color: #0f172a; transform: scale(1.03); }
+.btn-secondary { background: #475569; box-shadow: 0 0 10px #94a3b8; }
+.btn-secondary:hover { background: #94a3b8; color: #0f172a; }
+.panel-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 460px; max-height: 280px; overflow-y: auto; margin: 10px 0; padding: 5px; }
+.item-card { background: rgba(30, 41, 59, 0.85); border: 1px solid #38bdf8; border-radius: 8px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.preview-cvs { width: 50px; height: 60px; border-radius: 6px; border: 1px solid #38bdf8; background: #0f172a; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div id="game-wrap">
+  <div id="hud" class="hidden">
+    <div class="badge">ĐIỂM: <span id="score">0</span></div>
+    <div class="badge" style="color: #fde047;">VÀNG: <span id="coins">0</span></div>
+    <div class="badge" style="color: #38bdf8;">KIM CƯƠNG: <span id="diamonds">0</span></div>
+  </div>
+  <div id="screen-home" class="screen">
+    <h1 style="color: #38bdf8; font-size: 26px; text-shadow: 0 0 15px #0284c7; margin-bottom: 5px;">CHẠY TRỐN QUÁI VẬT</h1>
+    <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Khám phá Rừng Đêm, thu thập tài nguyên và sinh tồn!</p>
+    <div style="margin-bottom: 15px; font-size: 15px; color: #fde047;">🪙 Vàng: <span id="home-coins">0</span> | 💎 Kim cương: <span id="home-diamonds">0</span></div>
+    <button class="btn" onclick="startGame()">BẮT ĐẦU CHƠI</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-tutorial')">HƯỚNG DẪN CÁCH CHƠI</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-shop')">CỬA HÀNG TRANG PHỤC</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-quests')">NHIỆM VỤ NHẬN THƯỞNG</button>
+  </div>
+  <div id="screen-tutorial" class="screen hidden">
+    <h2 style="color: #38bdf8; margin-top:0;">HƯỚNG DẪN CÁCH CHƠI</h2>
+    <div style="text-align: left; max-width: 420px; font-size: 13px; line-height: 1.5; color: #f8fafc; background: rgba(15, 23, 42, 0.9); padding: 15px; border-radius: 8px; border: 1px solid #38bdf8; margin-bottom: 15px;">
+      <p style="margin:0 0 8px 0;"><b>📱 Điện thoại:</b> Vuốt màn hình<br>- Vuốt trái/phải: Đổi làn đường.<br>- Vuốt lên: Nhảy tránh chướng ngại vật.</p>
+      <p style="margin:0 0 8px 0;"><b>💻 Máy tính:</b> Dùng các phím Mũi tên<br>- Mũi tên Trái / Phải: Đổi làn đường.<br>- Mũi tên Lên: Nhảy.</p>
+      <p style="margin:0;"><b>🎯 Mục tiêu:</b> Né tránh đá, khúc cây và cây xanh; thu thập Vàng và Kim cương để mở khóa trang phục!</p>
+    </div>
