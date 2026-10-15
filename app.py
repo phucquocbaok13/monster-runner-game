@@ -55,7 +55,7 @@ with st.container():
     </div>
     """, unsafe_allow_html=True)
 
-# Mã nguồn HTML, CSS và JavaScript hoàn chỉnh
+# Mã nguồn HTML, CSS và JavaScript hoàn chỉnh, an toàn chống lỗi cú pháp
 game_html = [
     "<!DOCTYPE html>",
     "<html lang='vi'>",
