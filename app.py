@@ -19,216 +19,68 @@ h1 { text-align: center; color: #00ffff; text-shadow: 0 0 15px rgba(0, 255, 255,
 
 st.markdown("<h1>CHẠY TRỐN QUÁI VẬT - RỪNG ĐÊM</h1>", unsafe_allow_html=True)
 
-html_code = """
-<!DOCTYPE html>
-<html lang='vi'>
-<head>
-<meta charset='UTF-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
-<title>Night Forest RPG</title>
-<style>
-body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: monospace; color: white; overflow: hidden; touch-action: none; }
-#game-wrap { position: relative; width: 100%; max-width: 800px; box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); border-radius: 8px; overflow: hidden; }
-canvas { display: block; width: 100%; height: auto; background: #030712; }
-#hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; text-shadow: 2px 2px #000; pointer-events: none; z-index: 5; }
-.badge { background: rgba(15, 23, 42, 0.85); padding: 5px 10px; border-radius: 6px; border: 1px solid #38bdf8; }
-.screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 10; padding: 20px; box-sizing: border-box; }
-.hidden { display: none !important; }
-.btn { background: #0284c7; color: white; border: none; padding: 12px 28px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin: 6px; box-shadow: 0 0 15px #38bdf8; transition: 0.2s; width: 260px; max-width: 100%; }
-.btn:hover { background: #38bdf8; color: #0f172a; transform: scale(1.03); }
-.btn-secondary { background: #475569; box-shadow: 0 0 10px #94a3b8; }
-.btn-secondary:hover { background: #94a3b8; color: #0f172a; }
-.panel-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 460px; max-height: 280px; overflow-y: auto; margin: 10px 0; padding: 5px; }
-.item-card { background: rgba(30, 41, 59, 0.85); border: 1px solid #38bdf8; border-radius: 8px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.preview-cvs { width: 50px; height: 60px; border-radius: 6px; border: 1px solid #38bdf8; background: #0f172a; flex-shrink: 0; }
-</style>
-</head>
-<body>
-<div id='game-wrap'>
-  <div id='hud' class='hidden'>
-    <div class='badge'>ĐIỂM: <span id='score'>0</span></div>
-    <div class='badge' style='color: #fde047;'>VÀNG: <span id='coins'>0</span></div>
-    <div class='badge' style='color: #38bdf8;'>KIM CƯƠNG: <span id='diamonds'>0</span></div>
-  </div>
-  <div id='screen-home' class='screen'>
-    <h1 style='color: #38bdf8; font-size: 26px; text-shadow: 0 0 15px #0284c7; margin-bottom: 5px;'>CHẠY TRỐN QUÁI VẬT</h1>
-    <p style='color: #94a3b8; font-size: 13px; margin-bottom: 15px;'>Khám phá Rừng Đêm, thu thập tài nguyên và sinh tồn!</p>
-    <div style='margin-bottom: 15px; font-size: 15px; color: #fde047;'>🪙 Vàng: <span id='home-coins'>0</span> | 💎 Kim cương: <span id='home-diamonds'>0</span></div>
-    <button class='btn' onclick='startGame()'>BẮT ĐẦU CHƠI</button>
-    <button class='btn btn-secondary' onclick='showScreen("screen-tutorial")'>HƯỚNG DẪN CÁCH CHƠI</button>
-    <button class='btn btn-secondary' onclick='showScreen("screen-shop")'>CỬA HÀNG TRANG PHỤC</button>
-    <button class='btn btn-secondary' onclick='showScreen("screen-quests")'>NHIỆM VỤ NHẬN THƯỞNG</button>
-  </div>
-  <div id='screen-tutorial' class='screen hidden'>
-    <h2 style='color: #38bdf8; margin-top:0;'>HƯỚNG DẪN CÁCH CHƠI</h2>
-    <div style='text-align: left; max-width: 420px; font-size: 13px; line-height: 1.5; color: #f8fafc; background: rgba(15, 23, 42, 0.9); padding: 15px; border-radius: 8px; border: 1px solid #38bdf8; margin-bottom: 15px;'>
-      <p style='margin:0 0 8px 0;'><b>📱 Điện thoại:</b> Vuốt màn hình<br>- Vuốt trái/phải: Đổi làn đường.<br>- Vuốt lên: Nhảy tránh chướng ngại vật.</p>
-      <p style='margin:0 0 8px 0;'><b>💻 Máy tính:</b> Dùng các phím Mũi tên<br>- Mũi tên Trái / Phải: Đổi làn đường.<br>- Mũi tên Lên: Nhảy.</p>
-      <p style='margin:0;'><b>🎯 Mục tiêu:</b> Né tránh đá, khúc cây và cây xanh; thu thập Vàng và Kim cương để mở khóa trang phục!</p>
-    </div>
-    <button class='btn btn-secondary' onclick='showScreen("screen-home")'>QUAY LẠI</button>
-  </div>
-  <div id='screen-shop' class='screen hidden'>
-    <h2 style='color: #38bdf8; margin-top:0;'>CỬA HÀNG TRANG PHỤC</h2>
-    <div style='font-size: 14px; color: #fde047; margin-bottom: 5px;'>💎 Kim cương hiện có: <span id='shop-diamonds'>0</span></div>
-    <div class='panel-grid' id='shop-list'></div>
-    <button class='btn btn-secondary' onclick='showScreen("screen-home")'>QUAY LẠI</button>
-  </div>
-  <div id='screen-quests' class='screen hidden'>
-    <h2 style='color: #38bdf8; margin-top:0;'>HỆ THỐNG NHIỆM VỤ</h2>
-    <div class='panel-grid' id='quest-list'></div>
-    <button class='btn btn-secondary' onclick='showScreen("screen-home")'>QUAY LẠI</button>
-  </div>
-  <div id='screen-gameover' class='screen hidden'>
-    <h1 style='color: #f43f5e; font-size: 28px; margin-bottom: 10px;'>BẠN ĐÃ BỊ TÚM TÓC!</h1>
-    <p style='color: #fde047; font-size: 16px; margin: 4px;'>⭐ Điểm đạt được: <span id='go-score'>0</span></p>
-    <p style='color: #fde047; font-size: 14px; margin: 4px;'>🪙 Vàng nhặt: +<span id='go-coins'>0</span> | 💎 Kim cương: +<span id='go-diamonds'>0</span></p>
-    <button class='btn' onclick='startGame()' style='margin-top: 12px;'>CHƠI LẠI NGAY</button>
-    <button class='btn btn-secondary' onclick='showScreen("screen-home")'>VỀ TRANG CHỦ</button>
-  </div>
-  <canvas id='cvs' width='800' height='500'></canvas>
-</div>
-
-<script>
-let playerData = JSON.parse(localStorage.getItem('nightForestRPG')) || {
-  coins: 0,
-  diamonds: 100,
-  unlockedSkins: ['default'],
-  equippedSkin: 'default',
-  quests: [
-    { id: 1, title: 'Chạy đạt mốc 300 điểm', target: 300, progress: 0, reward: 20, claimed: false },
-    { id: 2, title: 'Thu thập tổng cộng 10 vàng', target: 10, progress: 0, reward: 20, claimed: false },
-    { id: 3, title: 'Thu thập 3 viên kim cương', target: 3, progress: 0, reward: 30, claimed: false }
-  ]
-};
-function saveGame() { localStorage.setItem('nightForestRPG', JSON.stringify(playerData)); updateUI(); }
-
-const skins = {
-  'default': { name: 'Thám Hiểm Tiêu Chuẩn', cost: 0, color: '#94a3b8', accent: '#64748b', hat: '#334155' },
-  'gold':    { name: 'Hiệp Sĩ Áo Giáp Vàng', cost: 50, color: '#fde047', accent: '#ca8a04', hat: '#eab308' },
-  'ninja':   { name: 'Ninja Bóng Đêm', cost: 100, color: '#38bdf8', accent: '#0284c7', hat: '#0f172a' },
-  'fire':    { name: 'Chiến Binh Lửa Đỏ', cost: 150, color: '#ef4444', accent: '#b91c1c', hat: '#7f1d1d' },
-  'cyber':   { name: 'Robot Tương Lai', cost: 200, color: '#c084fc', accent: '#7e22ce', hat: '#a855f7' },
-  'wizard':  { name: 'Phù Thủy Tối Thượng', cost: 250, color: '#a855f7', accent: '#581c87', hat: '#3b0764' },
-  'neon':    { name: 'Siêu Tốc Độ Neon', cost: 300, color: '#22c55e', accent: '#15803d', hat: '#4ade80' },
-  'ice':     { name: 'Chiến Binh Băng Giá', cost: 350, color: '#e0f2fe', accent: '#0284c7', hat: '#7dd3fc' },
-  'king':    { name: 'Đế Vương Hoàng Gia', cost: 400, color: '#fbbf24', accent: '#b45309', hat: '#dc2626' },
-  'cosmic':  { name: 'Hành Tinh Vũ Trụ', cost: 500, color: '#ec4899', accent: '#831843', hat: '#6366f1' }
-};
-
-function updateUI() {
-  document.getElementById('home-coins').innerText = playerData.coins;
-  document.getElementById('home-diamonds').innerText = playerData.diamonds;
-  document.getElementById('shop-diamonds').innerText = playerData.diamonds;
-  document.getElementById('coins').innerText = playerData.coins;
-  document.getElementById('diamonds').innerText = playerData.diamonds;
-}
-updateUI();
-
-function showScreen(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-  document.getElementById(screenId).classList.remove('hidden');
-  if (screenId === 'screen-shop') renderShop();
-  if (screenId === 'screen-quests') renderQuests();
-}
-
-function drawSkinPreview(canvasId, skin) {
-  let pCvs = document.getElementById(canvasId);
-  if (!pCvs) return;
-  let pCtx = pCvs.getContext('2d');
-  pCtx.clearRect(0, 0, 50, 60);
-  let x = 25, y = 38;
-  pCtx.fillStyle = skin.accent; pCtx.fillRect(x - 6, y + 5, 4, 12); pCtx.fillRect(x + 2, y + 5, 4, 12);
-  pCtx.fillStyle = skin.color; pCtx.fillRect(x - 10, y - 18, 20, 24);
-  pCtx.fillStyle = '#cbd5e1'; pCtx.beginPath(); pCtx.arc(x, y - 12, 7, 0, Math.PI * 2); pCtx.fill();
-  pCtx.fillStyle = skin.accent; pCtx.fillRect(x - 14, y - 15, 4, 14); pCtx.fillRect(x + 10, y - 15, 4, 14);
-  pCtx.fillStyle = '#fef08a'; pCtx.beginPath(); pCtx.arc(x, y - 26, 8, 0, Math.PI * 2); pCtx.fill();
-  pCtx.fillStyle = skin.hat; pCtx.fillRect(x - 8, y - 32, 16, 6);
-}
-
-function renderShop() {
-  let list = document.getElementById('shop-list');
-  list.innerHTML = '';
-  for (let key in skins) {
-    let skin = skins[key];
-    let unlocked = playerData.unlockedSkins.includes(key);
-    let equipped = playerData.equippedSkin === key;
-    let cvsId = 'cvs-skin-' + key;
-    let html = `<div class='item-card'>`;
-    html += `<canvas id='${cvsId}' width='50' height='60' class='preview-cvs'></canvas>`;
-    html += `<div style='text-align: left; flex-grow: 1;'><b>${skin.name}</b><br><small style='color:#fde047;'>${skin.cost > 0 ? skin.cost + ' 💎' : 'Miễn phí'}</small></div>`;
-    if (equipped) {
-      html += `<span style='color: #34d399; font-weight:bold; font-size:13px;'>Đang mặc</span>`;
-    } else if (unlocked) {
-      html += `<button class='btn' style='padding:6px 14px; font-size:13px; width:auto; margin:0;' onclick='equipSkin(\"${key}\")'>Chọn</button>`;
-    } else {
-      html += `<button class='btn' style='padding:6px 14px; font-size:13px; width:auto; margin:0;' onclick='buySkin(\"${key}\")'>Mua</button>`;
-    }
-    html += `</div>`;
-    list.innerHTML += html;
-  }
-  setTimeout(() => {
-    for (let key in skins) { drawSkinPreview('cvs-skin-' + key, skins[key]); }
-  }, 50);
-}
-
-function buySkin(key) {
-  let skin = skins[key];
-  if (playerData.diamonds >= skin.cost) {
-    playerData.diamonds -= skin.cost;
-    playerData.unlockedSkins.push(key);
-    playerData.equippedSkin = key;
-    saveGame();
-    renderShop();
-    alert('Mua thành công trang phục mới!');
-  } else {
-    alert('Bạn không đủ kim cương!');
-  }
-}
-
-function equipSkin(key) {
-  playerData.equippedSkin = key;
-  saveGame();
-  renderShop();
-}
-
-function renderQuests() {
-  let list = document.getElementById('quest-list');
-  list.innerHTML = '';
-  playerData.quests.forEach(q => {
-    let completed = q.progress >= q.target;
-    let html = `<div class='item-card'>
-      <div style='text-align: left;'><b>${q.title}</b><br><small style='color:#94a3b8;'>Tiến độ: ${q.progress} / ${q.target}</small></div>`;
-    if (q.claimed) {
-      html += `<span style='color: #94a3b8;'>Đã nhận</span>`;
-    } else if (completed) {
-      html += `<button class='btn' style='padding:6px 14px; font-size:13px; width:auto; margin:0; background:#34d399;' onclick='claimQuest(${q.id})'>Nhận ${q.reward} 💎</button>`;
-    } else {
-      html += `<span style='color: #fde047; font-size:13px;'>Chưa xong</span>`;
-    }
-    html += `</div>`;
-    list.innerHTML += html;
-  });
-}
-
-function claimQuest(id) {
-  let q = playerData.quests.find(x => x.id === id);
-  if (q && !q.claimed && q.progress >= q.target) {
-    q.claimed = true;
-    playerData.diamonds += q.reward;
-    saveGame();
-    renderQuests();
-    alert('Nhận thưởng thành công!');
-  }
-}
-
-let audioCtx = null;
-function initAudio() { if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } }
-function playSound(type) {
-  if (!audioCtx) return;
-  try {
-    let osc = audioCtx.createOscillator();
-    let gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    let now = audioCtx.currentTime;
-    if (type === '
+html_parts = [
+    "<!DOCTYPE html>",
+    "<html lang='vi'>",
+    "<head>",
+    "<meta charset='UTF-8'>",
+    "<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>",
+    "<title>Night Forest RPG</title>",
+    "<style>",
+    "body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: monospace; color: white; overflow: hidden; touch-action: none; }",
+    "#game-wrap { position: relative; width: 100%; max-width: 800px; box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); border-radius: 8px; overflow: hidden; }",
+    "canvas { display: block; width: 100%; height: auto; background: #030712; }",
+    "#hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; text-shadow: 2px 2px #000; pointer-events: none; z-index: 5; }",
+    ".badge { background: rgba(15, 23, 42, 0.85); padding: 5px 10px; border-radius: 6px; border: 1px solid #38bdf8; }",
+    ".screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 10; padding: 20px; box-sizing: border-box; }",
+    ".hidden { display: none !important; }",
+    ".btn { background: #0284c7; color: white; border: none; padding: 12px 28px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin: 6px; box-shadow: 0 0 15px #38bdf8; transition: 0.2s; width: 260px; max-width: 100%; }",
+    ".btn:hover { background: #38bdf8; color: #0f172a; transform: scale(1.03); }",
+    ".btn-secondary { background: #475569; box-shadow: 0 0 10px #94a3b8; }",
+    ".btn-secondary:hover { background: #94a3b8; color: #0f172a; }",
+    ".panel-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 460px; max-height: 280px; overflow-y: auto; margin: 10px 0; padding: 5px; }",
+    ".item-card { background: rgba(30, 41, 59, 0.85); border: 1px solid #38bdf8; border-radius: 8px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }",
+    ".preview-cvs { width: 50px; height: 60px; border-radius: 6px; border: 1px solid #38bdf8; background: #0f172a; flex-shrink: 0; }",
+    "</style>",
+    "</head>",
+    "<body>",
+    "<div id='game-wrap'>",
+    "  <div id='hud' class='hidden'>",
+    "    <div class='badge'>ĐIỂM: <span id='score'>0</span></div>",
+    "    <div class='badge' style='color: #fde047;'>VÀNG: <span id='coins'>0</span></div>",
+    "    <div class='badge' style='color: #38bdf8;'>KIM CƯƠNG: <span id='diamonds'>0</span></div>",
+    "  </div>",
+    "  <div id='screen-home' class='screen'>",
+    "    <h1 style='color: #38bdf8; font-size: 26px; text-shadow: 0 0 15px #0284c7; margin-bottom: 5px;'>CHẠY TRỐN QUÁI VẬT</h1>",
+    "    <p style='color: #94a3b8; font-size: 13px; margin-bottom: 15px;'>Khám phá Rừng Đêm, thu thập tài nguyên và sinh tồn!</p>",
+    "    <div style='margin-bottom: 15px; font-size: 15px; color: #fde047;'>🪙 Vàng: <span id='home-coins'>0</span> | 💎 Kim cương: <span id='home-diamonds'>0</span></div>",
+    "    <button class='btn' onclick='startGame()'>BẮT ĐẦU CHƠI</button>",
+    "    <button class='btn btn-secondary' onclick='showScreen(\"screen-tutorial\")'>HƯỚNG DẪN CÁCH CHƠI</button>",
+    "    <button class='btn btn-secondary' onclick='showScreen(\"screen-shop\")'>CỬA HÀNG TRANG PHỤC</button>",
+    "    <button class='btn btn-secondary' onclick='showScreen(\"screen-quests\")'>NHIỆM VỤ NHẬN THƯỞNG</button>",
+    "  </div>",
+    "  <div id='screen-tutorial' class='screen hidden'>",
+    "    <h2 style='color: #38bdf8; margin-top:0;'>HƯỚNG DẪN CÁCH CHƠI</h2>",
+    "    <div style='text-align: left; max-width: 420px; font-size: 13px; line-height: 1.5; color: #f8fafc; background: rgba(15, 23, 42, 0.9); padding: 15px; border-radius: 8px; border: 1px solid #38bdf8; margin-bottom: 15px;'>",
+    "      <p style='margin:0 0 8px 0;'><b>📱 Điện thoại:</b> Vuốt màn hình<br>- Vuốt trái/phải: Đổi làn đường.<br>- Vuốt lên: Nhảy tránh chướng ngại vật.</p>",
+    "      <p style='margin:0 0 8px 0;'><b>💻 Máy tính:</b> Dùng các phím Mũi tên<br>- Mũi tên Trái / Phải: Đổi làn đường.<br>- Mũi tên Lên: Nhảy.</p>",
+    "      <p style='margin:0;'><b>🎯 Mục tiêu:</b> Né tránh đá, khúc cây và cây xanh; thu thập Vàng và Kim cương để mở khóa trang phục!</p>",
+    "    </div>",
+    "    <button class='btn btn-secondary' onclick='showScreen(\"screen-home\")'>QUAY LẠI</button>",
+    "  </div>",
+    "  <div id='screen-shop' class='screen hidden'>",
+    "    <h2 style='color: #38bdf8; margin-top:0;'>CỬA HÀNG TRANG PHỤC</h2>",
+    "    <div style='font-size: 14px; color: #fde047; margin-bottom: 5px;'>💎 Kim cương hiện có: <span id='shop-diamonds'>0</span></div>",
+    "    <div class='panel-grid' id='shop-list'></div>",
+    "    <button class='btn btn-secondary' onclick='showScreen(\"screen-home\")'>QUAY LẠI</button>",
+    "  </div>",
+    "  <div id='screen-quests' class='screen hidden'>",
+    "    <h2 style='color: #38bdf8; margin-top:0;'>HỆ THỐNG NHIỆM VỤ</h2>",
+    "    <div class='panel-grid' id='quest-list'></div>",
+    "    <button class='btn btn-secondary' onclick='showScreen(\"screen-home\")'>QUAY LẠI</button>",
+    "  </div>",
+    "  <div id='screen-gameover' class='screen hidden'>",
+    "    <h1 style='color: #f43f5e; font-size: 28px; margin-bottom: 10px;'>BẠN ĐÃ BỊ TÚM TÓC!</h1>",
+    "    <p style='color: #fde047; font-size: 16px; margin: 4px;'>⭐ Điểm đạt được: <span id='go-score'>0</span></p>",
+    "    <p style='color: #fde047; font-size: 14px; margin: 4px;'>🪙 Vàng nhặt: +<span id='go-coins'>0</span> | 💎 Kim cương: +<span id='go-diamonds'>0</span></p>",
+    "    <button class='btn' onclick='
