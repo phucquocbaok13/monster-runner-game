@@ -2,7 +2,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-# Cấu hình trang Streamlit
 st.set_page_config(
     page_title="Chạy Trốn Quái Vật - Rừng Đêm",
     page_icon="🌲",
@@ -19,7 +18,7 @@ h1 { text-align: center; color: #00ffff; text-shadow: 0 0 15px rgba(0, 255, 255,
 
 st.markdown("<h1>CHẠY TRỐN QUÁI VẬT - RỪNG ĐÊM</h1>", unsafe_allow_html=True)
 
-html_code = '''
+html_code = r'''
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -54,10 +53,10 @@ canvas { display: block; width: 100%; height: auto; background: #030712; }
     <h1 style="color: #38bdf8; font-size: 26px; text-shadow: 0 0 15px #0284c7; margin-bottom: 5px;">CHẠY TRỐN QUÁI VẬT</h1>
     <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Khám phá Rừng Đêm, thu thập tài nguyên và sinh tồn!</p>
     <div style="margin-bottom: 15px; font-size: 15px; color: #fde047;">🪙 Vàng: <span id="home-coins">0</span> | 💎 Kim cương: <span id="home-diamonds">0</span></div>
-    <button class="btn" onclick="startGame()">BẮT ĐẦU CHƠI</button>
-    <button class="btn btn-secondary" onclick="showScreen('screen-tutorial')">HƯỚNG DẪN CÁCH CHƠI</button>
-    <button class="btn btn-secondary" onclick="showScreen('screen-shop')">CỬA HÀNG TRANG PHỤC</button>
-    <button class="btn btn-secondary" onclick="showScreen('screen-quests')">NHIỆM VỤ NHẬN THƯỞNG</button>
+    <button class="btn" id="btn-start">BẮT ĐẦU CHƠI</button>
+    <button class="btn btn-secondary" id="btn-tut">HƯỚNG DẪN CÁCH CHƠI</button>
+    <button class="btn btn-secondary" id="btn-shop">CỬA HÀNG TRANG PHỤC</button>
+    <button class="btn btn-secondary" id="btn-quest">NHIỆM VỤ NHẬN THƯỞNG</button>
   </div>
   <div id="screen-tutorial" class="screen hidden">
     <h2 style="color: #38bdf8; margin-top:0;">HƯỚNG DẪN CÁCH CHƠI</h2>
@@ -83,14 +82,14 @@ canvas { display: block; width: 100%; height: auto; background: #030712; }
     <h1 style="color: #f43f5e; font-size: 28px; margin-bottom: 10px;">BẠN ĐÃ BỊ TÚM TÓC!</h1>
     <p style="color: #fde047; font-size: 16px; margin: 4px;">⭐ Điểm đạt được: <span id="go-score">0</span></p>
     <p style="color: #fde047; font-size: 14px; margin: 4px;">🪙 Vàng nhặt: +<span id="go-coins">0</span> | 💎 Kim cương: +<span id="go-diamonds">0</span></p>
-    <button class="btn" onclick="startGame()" style="margin-top: 12px;">CHƠI LẠI NGAY</button>
+    <button class="btn" id="btn-replay" style="margin-top: 12px;">CHƠI LẠI NGAY</button>
     <button class="btn btn-secondary" onclick="showScreen('screen-home')">VỀ TRANG CHỦ</button>
   </div>
   <div id="screen-victory" class="screen hidden">
     <h1 style="color: #34d399; font-size: 24px; margin-bottom: 10px;">CHÚC MỪNG BẠN ĐÃ SỐNG SÓT KHỎI QUÁI VẬT!</h1>
     <p style="color: #fde047; font-size: 16px; margin: 4px;">⭐ Điểm hoàn thành: <span id="vic-score">10000</span></p>
     <p style="color: #38bdf8; font-size: 16px; margin: 4px; font-weight: bold;">🎁 Thưởng chiến thắng: +100 💎 Kim cương!</p>
-    <button class="btn" onclick="startGame()" style="margin-top: 12px;">CHƠI LẠI</button>
+    <button class="btn" id="btn-win-replay" style="margin-top: 12px;">CHƠI LẠI</button>
     <button class="btn btn-secondary" onclick="showScreen('screen-home')">VỀ TRANG CHỦ</button>
   </div>
   <canvas id="cvs" width="800" height="500"></canvas>
@@ -310,46 +309,6 @@ function claimQuest(id) {
   }
 }
 
-let audioCtx = null;
-function initAudio() {
-  try {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-  } catch(e) {}
-}
-
-function playSound(type) {
-  if (!audioCtx) return;
-  try {
-    let osc = audioCtx.createOscillator();
-    let gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    let now = audioCtx.currentTime;
-    if (type === 'coin') {
-      osc.type = 'sine'; osc.frequency.setValueAtTime(587.33, now);
-      osc.frequency.setValueAtTime(880, now + 0.08);
-      gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-      osc.start(now); osc.stop(now + 0.25);
-    } else if (type === 'diamond') {
-      osc.type = 'sine'; osc.frequency.setValueAtTime(880, now);
-      osc.frequency.setValueAtTime(1320, now + 0.1);
-      gain.gain.setValueAtTime(0.4, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-      osc.start(now); osc.stop(now + 0.3);
-    } else if (type === 'jump') {
-      osc.type = 'triangle'; osc.frequency.setValueAtTime(200, now);
-      osc.frequency.exponentialRampToValueAtTime(450, now + 0.15);
-      gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-      osc.start(now); osc.stop(now + 0.15);
-    } else if (type === 'over') {
-      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, now);
-      osc.frequency.linearRampToValueAtTime(70, now + 0.4);
-      gain.gain.setValueAtTime(0.4, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-      osc.start(now); osc.stop(now + 0.4);
-    }
-  } catch(e) {}
-}
-
 const cvs = document.getElementById('cvs');
 const ctx = cvs.getContext('2d');
 let playing = false, score = 0, runCoins = 0, runDiamonds = 0, speed = 3.5, timer = 0, frameCount = 0, currentMY = 460;
@@ -359,7 +318,7 @@ let obstacles = [], coinList = [], diamondList = [], gateObj = null, floatTexts 
 
 function goLeft() { if (playing && currentLane > 0) currentLane--; }
 function goRight() { if (playing && currentLane < 2) currentLane++; }
-function goJump() { if (playing && !isJumping) { isJumping = true; jumpVY = -11; playSound('jump'); } }
+function goJump() { if (playing && !isJumping) { isJumping = true; jumpVY = -11; } }
 
 window.addEventListener('keydown', (e) => {
   if (!playing) return;
@@ -382,12 +341,18 @@ cvs.addEventListener('touchend', (e) => {
 }, {passive: true});
 
 function startGame() {
-  initAudio();
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   document.getElementById('hud').classList.remove('hidden');
   playing = true; score = 0; runCoins = 0; runDiamonds = 0; speed = 3.5; currentLane = 1; jumpY = 0; isJumping = false; frameCount = 0; currentMY = 460;
   obstacles = []; coinList = []; diamondList = []; gateObj = null; floatTexts = [];
 }
+
+document.getElementById('btn-start').addEventListener('click', startGame);
+document.getElementById('btn-replay').addEventListener('click', startGame);
+document.getElementById('btn-win-replay').addEventListener('click', startGame);
+document.getElementById('btn-tut').addEventListener('click', () => showScreen('screen-tutorial'));
+document.getElementById('btn-shop').addEventListener('click', () => showScreen('screen-shop'));
+document.getElementById('btn-quest').addEventListener('click', () => showScreen('screen-quests'));
 
 function spawnObjects() {
   if (!playing) return;
@@ -457,7 +422,6 @@ function updateGame() {
     if (c.y >= 350 && c.y <= 420 && c.lane === currentLane && jumpY > -45) {
       runCoins++; playerData.coins++;
       playerData.quests.forEach(q => { if (q.id === 2 || q.id === 102 || q.id % 100 === 2) q.progress++; });
-      playSound('coin');
       floatTexts.push({ x: lanes[c.lane], y: 360, text: '+1 vàng', alpha: 1.0, vy: -2 });
       coinList.splice(i, 1); continue;
     }
@@ -469,7 +433,6 @@ function updateGame() {
     if (d.y >= 350 && d.y <= 420 && d.lane === currentLane && jumpY > -45) {
       runDiamonds++; playerData.diamonds++;
       playerData.quests.forEach(q => { if (q.id === 3 || q.id === 103 || q.id % 100 === 3) q.progress++; });
-      playSound('diamond');
       floatTexts.push({ x: lanes[d.lane], y: 360, text: '+1 kim cương', alpha: 1.0, vy: -2 });
       diamondList.splice(i, 1); continue;
     }
@@ -479,7 +442,6 @@ function updateGame() {
 
 function gameOver() {
   playing = false;
-  playSound('over');
   saveGame();
   document.getElementById('hud').classList.add('hidden');
   document.getElementById('go-score').innerText = score;
