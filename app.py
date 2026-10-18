@@ -596,51 +596,10 @@ function renderGame() {
   currentMY += (targetMY - currentMY) * 0.05;
   let mX = pX, mY = currentMY + Math.sin(timer * 0.6) * 6;
   
-  ctx.save();
-  let mGrad = ctx.createRadialGradient(mX, mY - 15, 10, mX, mY, 60);
-  mGrad.addColorStop(0, '#166534');
-  mGrad.addColorStop(0.6, '#064e3b');
-  mGrad.addColorStop(1, '#022c22');
-  ctx.fillStyle = mGrad;
-  ctx.beginPath();
-  ctx.arc(mX, mY - 10, 52, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 3; ctx.stroke();
-
-  ctx.fillStyle = '#0f172a';
-  ctx.beginPath();
-  ctx.moveTo(mX - 25, mY - 48); ctx.lineTo(mX - 50, mY - 78); ctx.lineTo(mX - 15, mY - 52); ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(mX + 25, mY - 48); ctx.lineTo(mX + 50, mY - 78); ctx.lineTo(mX + 15, mY - 52); ctx.fill();
-
-  ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 18;
-  ctx.fillStyle = '#ef4444';
-  ctx.beginPath(); ctx.arc(mX - 16, mY - 22, 8, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(mX + 16, mY - 22, 8, 0, Math.PI * 2); ctx.fill();
-  
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath(); ctx.arc(mX - 16, mY - 22, 3, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(mX + 16, mY - 22, 3, 0, Math.PI * 2); ctx.fill();
-  ctx.shadowBlur = 0;
-
-  ctx.strokeStyle = '#022c22'; ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.moveTo(mX - 28, mY - 35); ctx.lineTo(mX - 8, mY - 28);
-  ctx.moveTo(mX + 28, mY - 35); ctx.lineTo(mX + 8, mY - 28);
-  ctx.stroke();
-
-  ctx.fillStyle = '#000000';
-  ctx.beginPath(); ctx.ellipse(mX, mY - 2, 26, 15, 0, 0, Math.PI); ctx.fill();
-  ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2; ctx.stroke();
-  
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  ctx.moveTo(mX - 18, mY - 2); ctx.lineTo(mX - 14, mY + 8); ctx.lineTo(mX - 10, mY - 2);
-  ctx.moveTo(mX - 6, mY - 2); ctx.lineTo(mX - 2, mY + 11); ctx.lineTo(mX + 2, mY - 2);
-  ctx.moveTo(mX + 10, mY - 2); ctx.lineTo(mX + 14, mY + 8); ctx.lineTo(mX + 18, mY - 2);
-  ctx.fill();
-
-  ctx.restore();
+  ctx.fillStyle = '#22c55e'; ctx.beginPath();
+  ctx.moveTo(mX, mY - 60); ctx.bezierCurveTo(mX + 45, mY - 40, mX + 50, mY + 10, mX + 30, mY + 40);
+  ctx.bezierCurveTo(mX + 15, mY + 55, mX - 15, mY + 55, mX - 30, mY + 40);
+  ctx.bezierCurveTo(mX - 50, mY + 10, mX - 45, mY - 40, mX, mY - 60); ctx.fill();
 
   document.getElementById('score').innerText = score;
   document.getElementById('coins').innerText = playerData.coins;
