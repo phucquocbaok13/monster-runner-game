@@ -19,7 +19,7 @@ h1 { text-align: center; color: #00ffff; text-shadow: 0 0 15px rgba(0, 255, 255,
 
 st.markdown("<h1>CHẠY TRỐN QUÁI VẬT - RỪNG ĐÊM</h1>", unsafe_allow_html=True)
 
-html_code = """
+html_code = '''
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -64,7 +64,7 @@ canvas { display: block; width: 100%; height: auto; background: #030712; }
     <div style="text-align: left; max-width: 420px; font-size: 13px; line-height: 1.5; color: #f8fafc; background: rgba(15, 23, 42, 0.9); padding: 15px; border-radius: 8px; border: 1px solid #38bdf8; margin-bottom: 15px;">
       <p style="margin:0 0 8px 0;"><b>📱 Điện thoại:</b> Vuốt màn hình<br>- Vuốt trái/phải: Đổi làn đường.<br>- Vuốt lên: Nhảy tránh chướng ngại vật.</p>
       <p style="margin:0 0 8px 0;"><b>💻 Máy tính:</b> Dùng các phím Mũi tên<br>- Mũi tên Trái / Phải: Đổi làn đường.<br>- Mũi tên Lên: Nhảy.</p>
-      <p style="margin:0;"><b>🎯 Mục tiêu:</b> Né tránh đá, khúc cây và cây xanh; thu thập Vàng và Kim cương để mở khóa trang phục!</p>
+      <p style="margin:0;"><b>🎯 Mục tiêu:</b> Sống sót đạt 10.000 điểm để tìm cánh cổng thoát thân, né tránh quái vật và chướng ngại vật!</p>
     </div>
     <button class="btn btn-secondary" onclick="showScreen('screen-home')">QUAY LẠI</button>
   </div>
@@ -86,6 +86,13 @@ canvas { display: block; width: 100%; height: auto; background: #030712; }
     <button class="btn" onclick="startGame()" style="margin-top: 12px;">CHƠI LẠI NGAY</button>
     <button class="btn btn-secondary" onclick="showScreen('screen-home')">VỀ TRANG CHỦ</button>
   </div>
+  <div id="screen-victory" class="screen hidden">
+    <h1 style="color: #34d399; font-size: 24px; margin-bottom: 10px;">CHÚC MỪNG BẠN ĐÃ SỐNG SÓT KHỎI QUÁI VẬT!</h1>
+    <p style="color: #fde047; font-size: 16px; margin: 4px;">⭐ Điểm hoàn thành: <span id="vic-score">10000</span></p>
+    <p style="color: #38bdf8; font-size: 16px; margin: 4px; font-weight: bold;">🎁 Thưởng chiến thắng: +100 💎 Kim cương!</p>
+    <button class="btn" onclick="startGame()" style="margin-top: 12px;">CHƠI LẠI</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-home')">VỀ TRANG CHỦ</button>
+  </div>
   <canvas id="cvs" width="800" height="500"></canvas>
 </div>
 
@@ -95,25 +102,44 @@ let playerData = JSON.parse(localStorage.getItem('nightForestRPG')) || {
   diamonds: 100,
   unlockedSkins: ['default'],
   equippedSkin: 'default',
+  questTier: 1,
   quests: [
     { id: 1, title: 'Chạy đạt mốc 300 điểm', target: 300, progress: 0, reward: 20, claimed: false },
     { id: 2, title: 'Thu thập tổng cộng 10 vàng', target: 10, progress: 0, reward: 20, claimed: false },
     { id: 3, title: 'Thu thập 3 viên kim cương', target: 3, progress: 0, reward: 30, claimed: false }
   ]
 };
-function saveGame() { localStorage.setItem('nightForestRPG', JSON.stringify(playerData)); updateUI(); }
+
+function saveGame() { 
+  localStorage.setItem('nightForestRPG', JSON.stringify(playerData)); 
+  updateUI(); 
+}
+
+function checkAndRotateQuests() {
+  let allClaimed = playerData.quests.every(q => q.claimed);
+  if (allClaimed) {
+    playerData.questTier++;
+    let t = playerData.questTier;
+    playerData.quests = [
+      { id: t * 100 + 1, title: 'Chạy sinh tồn đạt ' + (t * 1500) + ' điểm', target: t * 1500, progress: 0, reward: t * 30, claimed: false },
+      { id: t * 100 + 2, title: 'Thu thập tổng cộng ' + (t * 20) + ' vàng', target: t * 20, progress: 0, reward: t * 25, claimed: false },
+      { id: t * 100 + 3, title: 'Thu thập ' + (t * 8) + ' viên kim cương', target: t * 8, progress: 0, reward: t * 40, claimed: false }
+    ];
+    saveGame();
+  }
+}
 
 const skins = {
-  'default': { name: 'Thám Hiểm Tiêu Chuẩn', cost: 0, color: '#94a3b8', accent: '#64748b', hat: '#334155' },
-  'gold':    { name: 'Hiệp Sĩ Áo Giáp Vàng', cost: 50, color: '#fde047', accent: '#ca8a04', hat: '#eab308' },
-  'ninja':   { name: 'Ninja Bóng Đêm', cost: 100, color: '#38bdf8', accent: '#0284c7', hat: '#0f172a' },
-  'fire':    { name: 'Chiến Binh Lửa Đỏ', cost: 150, color: '#ef4444', accent: '#b91c1c', hat: '#7f1d1d' },
-  'cyber':   { name: 'Robot Tương Lai', cost: 200, color: '#c084fc', accent: '#7e22ce', hat: '#a855f7' },
-  'wizard':  { name: 'Phù Thủy Tối Thượng', cost: 250, color: '#a855f7', accent: '#581c87', hat: '#3b0764' },
-  'neon':    { name: 'Siêu Tốc Độ Neon', cost: 300, color: '#22c55e', accent: '#15803d', hat: '#4ade80' },
-  'ice':     { name: 'Chiến Binh Băng Giá', cost: 350, color: '#e0f2fe', accent: '#0284c7', hat: '#7dd3fc' },
-  'king':    { name: 'Đế Vương Hoàng Gia', cost: 400, color: '#fbbf24', accent: '#b45309', hat: '#dc2626' },
-  'cosmic':  { name: 'Hành Tinh Vũ Trụ', cost: 500, color: '#ec4899', accent: '#831843', hat: '#6366f1' }
+  'default': { name: 'Thám Hiểm Tiêu Chuẩn', cost: 0, color: '#94a3b8', accent: '#64748b', hat: '#334155', glow: '#60a5fa' },
+  'gold':    { name: 'Hiệp Sĩ Áo Giáp Vàng', cost: 50, color: '#fde047', accent: '#ca8a04', hat: '#eab308', glow: '#facc15' },
+  'ninja':   { name: 'Ninja Bóng Đêm', cost: 100, color: '#38bdf8', accent: '#0284c7', hat: '#0f172a', glow: '#38bdf8' },
+  'fire':    { name: 'Chiến Binh Lửa Đỏ', cost: 150, color: '#ef4444', accent: '#b91c1c', hat: '#7f1d1d', glow: '#f87171' },
+  'cyber':   { name: 'Robot Tương Lai', cost: 200, color: '#c084fc', accent: '#7e22ce', hat: '#a855f7', glow: '#e879f9' },
+  'wizard':  { name: 'Phù Thủy Tối Thượng', cost: 250, color: '#a855f7', accent: '#581c87', hat: '#3b0764', glow: '#c084fc' },
+  'neon':    { name: 'Siêu Tốc Độ Neon', cost: 300, color: '#22c55e', accent: '#15803d', hat: '#4ade80', glow: '#48bb78' },
+  'ice':     { name: 'Chiến Binh Băng Giá', cost: 350, color: '#e0f2fe', accent: '#0284c7', hat: '#7dd3fc', glow: '#bae6fd' },
+  'king':    { name: 'Đế Vương Hoàng Gia', cost: 400, color: '#fbbf24', accent: '#b45309', hat: '#dc2626', glow: '#f6e05e' },
+  'cosmic':  { name: 'Hành Tinh Vũ Trụ', cost: 500, color: '#ec4899', accent: '#831843', hat: '#6366f1', glow: '#f472b6' }
 };
 
 function updateUI() {
@@ -129,7 +155,62 @@ function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   document.getElementById(screenId).classList.remove('hidden');
   if (screenId === 'screen-shop') renderShop();
-  if (screenId === 'screen-quests') renderQuests();
+  if (screenId === 'screen-quests') {
+    checkAndRotateQuests();
+    renderQuests();
+  }
+}
+
+function drawDetailedPlayer(ctx, px, py, skin, isJumpingState, animTimer) {
+  ctx.save();
+  let armCycle = Math.sin(animTimer * 0.6) * 8;
+  let legCycle = Math.cos(animTimer * 0.6) * 10;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.beginPath(); ctx.ellipse(px, py + 38, 18, 7, 0, 0, Math.PI*2); ctx.fill();
+
+  ctx.fillStyle = skin.accent;
+  ctx.fillRect(px - 10, py + 12 + legCycle, 7, 24);
+  ctx.fillRect(px + 3, py + 12 - legCycle, 7, 24);
+
+  let bodyGrad = ctx.createLinearGradient(px - 15, py - 20, px + 15, py + 20);
+  bodyGrad.addColorStop(0, skin.color);
+  bodyGrad.addColorStop(1, skin.accent);
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath();
+  if (ctx.roundRect) { ctx.roundRect(px - 14, py - 24, 28, 38, 6); } else { ctx.rect(px - 14, py - 24, 28, 38); }
+  ctx.fill();
+  ctx.strokeStyle = skin.glow; ctx.lineWidth = 1.5; ctx.stroke();
+
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(px - 14, py - 2, 28, 5);
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(px - 3, py - 3, 6, 7);
+
+  ctx.fillStyle = skin.accent;
+  ctx.fillRect(px - 22, py - 20 + armCycle, 7, 20);
+  ctx.fillRect(px + 15, py - 20 - armCycle, 7, 20);
+
+  ctx.fillStyle = '#fbcfe8';
+  ctx.beginPath(); ctx.arc(px, py - 32, 11, 0, Math.PI * 2); ctx.fill();
+
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(px - 5, py - 35, 3, 4);
+  ctx.fillRect(px + 2, py - 35, 3, 4);
+
+  ctx.fillStyle = skin.hat;
+  ctx.beginPath();
+  ctx.arc(px, py - 35, 12, Math.PI, Math.PI * 2);
+  ctx.fill();
+  ctx.fillRect(px - 14, py - 43, 28, 7);
+
+  ctx.shadowColor = skin.glow;
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = skin.glow;
+  ctx.fillRect(px - 2, py - 46, 4, 4);
+  ctx.shadowBlur = 0;
+
+  ctx.restore();
 }
 
 function drawSkinPreview(canvasId, skin) {
@@ -137,13 +218,7 @@ function drawSkinPreview(canvasId, skin) {
   if (!pCvs) return;
   let pCtx = pCvs.getContext('2d');
   pCtx.clearRect(0, 0, 50, 60);
-  let x = 25, y = 38;
-  pCtx.fillStyle = skin.accent; pCtx.fillRect(x - 6, y + 5, 4, 12); pCtx.fillRect(x + 2, y + 5, 4, 12);
-  pCtx.fillStyle = skin.color; pCtx.fillRect(x - 10, y - 18, 20, 24);
-  pCtx.fillStyle = '#cbd5e1'; pCtx.beginPath(); pCtx.arc(x, y - 12, 7, 0, Math.PI * 2); pCtx.fill();
-  pCtx.fillStyle = skin.accent; pCtx.fillRect(x - 14, y - 15, 4, 14); pCtx.fillRect(x + 10, y - 15, 4, 14);
-  pCtx.fillStyle = '#fef08a'; pCtx.beginPath(); pCtx.arc(x, y - 26, 8, 0, Math.PI * 2); pCtx.fill();
-  pCtx.fillStyle = skin.hat; pCtx.fillRect(x - 8, y - 32, 16, 6);
+  drawDetailedPlayer(pCtx, 25, 32, skin, false, 0);
 }
 
 function renderShop() {
@@ -154,17 +229,17 @@ function renderShop() {
     let unlocked = playerData.unlockedSkins.includes(key);
     let equipped = playerData.equippedSkin === key;
     let cvsId = 'cvs-skin-' + key;
-    let html = `<div class='item-card'>`;
-    html += `<canvas id='${cvsId}' width='50' height='60' class='preview-cvs'></canvas>`;
-    html += `<div style='text-align: left; flex-grow: 1;'><b>${skin.name}</b><br><small style='color:#fde047;'>${skin.cost > 0 ? skin.cost + ' 💎' : 'Miễn phí'}</small></div>`;
+    let html = "<div class='item-card'>";
+    html += "<canvas id='" + cvsId + "' width='50' height='60' class='preview-cvs'></canvas>";
+    html += "<div style='text-align: left; flex-grow: 1;'><b>" + skin.name + "</b><br><small style='color:#fde047;'>" + (skin.cost > 0 ? skin.cost + " 💎" : "Miễn phí") + "</small></div>";
     if (equipped) {
-      html += `<span style='color: #34d399; font-weight:bold; font-size:13px;'>Đang mặc</span>`;
+      html += "<span style='color: #34d399; font-weight:bold; font-size:13px;'>Đang mặc</span>";
     } else if (unlocked) {
-      html += `<button class='btn' style='padding:6px 14px; font-size:13px; width:auto; margin:0;' onclick='equipSkin("${key}")'>Chọn</button>`;
+      html += "<button class='btn' style='padding:6px 14px; font-size:13px; width:auto; margin:0;' onclick='equipSkin(\"" + key + "\")'>Chọn</button>";
     } else {
-      html += `<button class='btn' style='padding:6px 14px; font-size:13px; width:auto; margin:0;' onclick='buySkin("${key}")'>Mua</button>`;
+      html += "<button class='btn' style='padding:6px 14px; font-size:13px; width:auto; margin:0;' onclick='buySkin(\"" + key + "\")'>Mua</button>";
     }
-    html += `</div>`;
+    html += "</div>";
     list.innerHTML += html;
   }
   setTimeout(() => {
@@ -197,16 +272,16 @@ function renderQuests() {
   list.innerHTML = '';
   playerData.quests.forEach(q => {
     let completed = q.progress >= q.target;
-    let html = `<div class='item-card'>
-      <div style='text-align: left;'><b>${q.title}</b><br><small style='color:#94a3b8;'>Tiến độ: ${q.progress} / ${q.target}</small></div>`;
+    let html = "<div class='item-card'>";
+    html += "<div style='text-align: left;'><b>" + q.title + "</b><br><small style='color:#94a3b8;'>Tiến độ: " + q.progress + " / " + q.target + "</small></div>";
     if (q.claimed) {
-      html += `<span style='color: #94a3b8;'>Đã nhận</span>`;
+      html += "<span style='color: #94a3b8;'>Đã nhận</span>";
     } else if (completed) {
-      html += `<button class='btn' style='padding:6px 14px; font-size:13px; width:auto; margin:0; background:#34d399;' onclick='claimQuest(${q.id})'>Nhận ${q.reward} 💎</button>`;
+      html += "<button class='btn' style='padding:6px 14px; font-size:13px; width:auto; margin:0; background:#34d399;' onclick='claimQuest(" + q.id + ")'>Nhận " + q.reward + " 💎</button>";
     } else {
-      html += `<span style='color: #fde047; font-size:13px;'>Chưa xong</span>`;
+      html += "<span style='color: #fde047; font-size:13px;'>Chưa xong</span>";
     }
-    html += `</div>`;
+    html += "</div>";
     list.innerHTML += html;
   });
 }
@@ -217,13 +292,21 @@ function claimQuest(id) {
     q.claimed = true;
     playerData.diamonds += q.reward;
     saveGame();
+    checkAndRotateQuests();
     renderQuests();
     alert('Nhận thưởng thành công!');
   }
 }
 
 let audioCtx = null;
-function initAudio() { if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } }
+function initAudio() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  } catch(e) {}
+}
+
 function playSound(type) {
   if (!audioCtx) return;
   try {
@@ -260,7 +343,7 @@ const ctx = cvs.getContext('2d');
 let playing = false, score = 0, runCoins = 0, runDiamonds = 0, speed = 3.5, timer = 0, frameCount = 0, currentMY = 460;
 const lanes = [280, 400, 520];
 let currentLane = 1, jumpY = 0, jumpVY = 0, isJumping = false;
-let obstacles = [], coinList = [], diamondList = [], floatTexts = [], roadOffset = 0;
+let obstacles = [], coinList = [], diamondList = [], gateObj = null, floatTexts = [], roadOffset = 0;
 
 function goLeft() { if (playing && currentLane > 0) currentLane--; }
 function goRight() { if (playing && currentLane < 2) currentLane++; }
@@ -291,36 +374,57 @@ function startGame() {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   document.getElementById('hud').classList.remove('hidden');
   playing = true; score = 0; runCoins = 0; runDiamonds = 0; speed = 3.5; currentLane = 1; jumpY = 0; isJumping = false; frameCount = 0; currentMY = 460;
-  obstacles = []; coinList = []; diamondList = []; floatTexts = [];
+  obstacles = []; coinList = []; diamondList = []; gateObj = null; floatTexts = [];
 }
 
 function spawnObjects() {
   if (!playing) return;
+  if (score >= 10000 && !gateObj) return;
   let lane = Math.floor(Math.random() * 3);
   let rand = Math.random();
-  if (rand < 0.5) {
+  let chanceRock = score >= 2000 ? 0.6 : 0.5;
+  if (rand < chanceRock) {
     let types = ['rock', 'log', 'tree'];
     obstacles.push({ lane: lane, y: -50, type: types[Math.floor(Math.random() * types.length)] });
-  } else if (rand < 0.8) {
+  } else if (rand < 0.85) {
     coinList.push({ lane: lane, y: -50 });
   } else {
     diamondList.push({ lane: lane, y: -50 });
   }
 }
-setInterval(spawnObjects, 1500);
+setInterval(spawnObjects, 1300);
 
 function updateGame() {
   if (!playing) return;
   score++;
   frameCount++;
   timer += 0.15;
-  speed = 3.5 + Math.floor(score / 400) * 0.2;
+
+  let baseSpeed = score >= 2000 ? 5.5 : 3.5;
+  speed = baseSpeed + Math.floor(score / 500) * 0.25;
   roadOffset += speed;
-  if (isJumping) { jumpY += jumpVY; jumpVY += 0.55; if (jumpY >= 0) { jumpY = 0; isJumping = false; } }
+
+  if (isJumping) { 
+    jumpY += jumpVY; 
+    jumpVY += 0.55; 
+    if (jumpY >= 0) { jumpY = 0; isJumping = false; } 
+  }
 
   playerData.quests.forEach(q => {
-    if (q.id === 1 && score > q.progress) q.progress = score;
+    if ((q.id === 1 || q.id === 101 || q.id > 200) && score > q.progress) q.progress = score;
   });
+
+  if (score >= 10000 && !gateObj) {
+    gateObj = { lane: 1, y: -100 };
+  }
+
+  if (gateObj) {
+    gateObj.y += speed;
+    if (gateObj.y >= 350 && gateObj.y <= 430 && gateObj.lane === currentLane) {
+      victoryGame();
+      return;
+    }
+  }
 
   for (let i = floatTexts.length - 1; i >= 0; i--) {
     let ft = floatTexts[i]; ft.y += ft.vy; ft.alpha -= 0.025; if (ft.alpha <= 0) floatTexts.splice(i, 1);
@@ -340,7 +444,7 @@ function updateGame() {
     let c = coinList[i]; c.y += speed;
     if (c.y >= 350 && c.y <= 420 && c.lane === currentLane && jumpY > -45) {
       runCoins++; playerData.coins++;
-      playerData.quests.forEach(q => { if (q.id === 2) q.progress++; });
+      playerData.quests.forEach(q => { if (q.id === 2 || q.id === 102 || q.id % 100 === 2) q.progress++; });
       playSound('coin');
       floatTexts.push({ x: lanes[c.lane], y: 360, text: '+1 vàng', alpha: 1.0, vy: -2 });
       coinList.splice(i, 1); continue;
@@ -352,7 +456,7 @@ function updateGame() {
     let d = diamondList[i]; d.y += speed;
     if (d.y >= 350 && d.y <= 420 && d.lane === currentLane && jumpY > -45) {
       runDiamonds++; playerData.diamonds++;
-      playerData.quests.forEach(q => { if (q.id === 3) q.progress++; });
+      playerData.quests.forEach(q => { if (q.id === 3 || q.id === 103 || q.id % 100 === 3) q.progress++; });
       playSound('diamond');
       floatTexts.push({ x: lanes[d.lane], y: 360, text: '+1 kim cương', alpha: 1.0, vy: -2 });
       diamondList.splice(i, 1); continue;
@@ -370,6 +474,15 @@ function gameOver() {
   document.getElementById('go-coins').innerText = runCoins;
   document.getElementById('go-diamonds').innerText = runDiamonds;
   document.getElementById('screen-gameover').classList.remove('hidden');
+}
+
+function victoryGame() {
+  playing = false;
+  playerData.diamonds += 100;
+  saveGame();
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('vic-score').innerText = score;
+  document.getElementById('screen-victory').classList.remove('hidden');
 }
 
 function renderGame() {
@@ -391,6 +504,19 @@ function renderGame() {
     let tY = (i * 120 + roadOffset * 1.5) % 600 - 50;
     ctx.fillStyle = '#064e3b'; ctx.beginPath(); ctx.arc(100, tY, 35, 0, Math.PI*2); ctx.arc(700, tY, 35, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#022c22'; ctx.fillRect(92, tY + 15, 16, 40); ctx.fillRect(692, tY + 15, 16, 40);
+  }
+
+  if (gateObj) {
+    let gX = lanes[gateObj.lane], gY = gateObj.y;
+    ctx.save();
+    ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 25;
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.3)';
+    ctx.fillRect(gX - 55, gY - 60, 110, 110);
+    ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 4;
+    ctx.strokeRect(gX - 55, gY - 60, 110, 110);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('THOÁT THÂN', gX, gY - 70);
+    ctx.restore();
   }
 
   obstacles.forEach(o => {
@@ -452,32 +578,58 @@ function renderGame() {
 
   let skin = skins[playerData.equippedSkin] || skins['default'];
   let pX = lanes[currentLane], pY = 385 + jumpY;
-  let armCycle = Math.sin(timer * 0.5);
-  let legCycle = Math.cos(timer * 0.5);
-  
-  ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.beginPath(); ctx.ellipse(pX, pY + 38, 24, 9, 0, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = skin.accent;
-  ctx.fillRect(pX - 10, pY + 15 + legCycle * 14, 8, 22);
-  ctx.fillRect(pX + 2, pY + 15 - legCycle * 14, 8, 22);
-  
-  ctx.fillStyle = skin.color;
-  ctx.fillRect(pX - 16, pY - 30, 32, 48);
-  ctx.fillStyle = '#cbd5e1'; ctx.beginPath(); ctx.arc(pX, pY - 22, 12, Math.PI, Math.PI*2); ctx.fill();
-  
-  ctx.fillStyle = skin.accent;
-  ctx.fillRect(pX - 24, pY - 25 - armCycle * 12, 8, 24);
-  ctx.fillRect(pX + 16, pY - 25 + armCycle * 12, 8, 24);
-  ctx.fillStyle = '#fef08a'; ctx.beginPath(); ctx.arc(pX, pY - 42, 14, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = skin.hat; ctx.fillRect(pX - 14, pY - 52, 28, 10);
+  drawDetailedPlayer(ctx, pX, pY, skin, isJumping, timer);
 
   let targetMY = (frameCount > 120) ? 520 : 460;
   currentMY += (targetMY - currentMY) * 0.05;
   let mX = pX, mY = currentMY + Math.sin(timer * 0.6) * 6;
-  ctx.fillStyle = '#22c55e'; ctx.beginPath();
-  ctx.moveTo(mX, mY - 60); ctx.bezierCurveTo(mX + 45, mY - 40, mX + 50, mY + 10, mX + 30, mY + 40);
-  ctx.bezierCurveTo(mX + 15, mY + 55, mX - 15, mY + 55, mX - 30, mY + 40);
-  ctx.bezierCurveTo(mX - 50, mY + 10, mX - 45, mY - 40, mX, mY - 60); ctx.fill();
   
+  ctx.save();
+  let mGrad = ctx.createRadialGradient(mX, mY - 15, 10, mX, mY, 60);
+  mGrad.addColorStop(0, '#166534');
+  mGrad.addColorStop(0.6, '#064e3b');
+  mGrad.addColorStop(1, '#022c22');
+  ctx.fillStyle = mGrad;
+  ctx.beginPath();
+  ctx.arc(mX, mY - 10, 52, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 3; ctx.stroke();
+
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.moveTo(mX - 25, mY - 48); ctx.lineTo(mX - 50, mY - 78); ctx.lineTo(mX - 15, mY - 52); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(mX + 25, mY - 48); ctx.lineTo(mX + 50, mY - 78); ctx.lineTo(mX + 15, mY - 52); ctx.fill();
+
+  ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 18;
+  ctx.fillStyle = '#ef4444';
+  ctx.beginPath(); ctx.arc(mX - 16, mY - 22, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(mX + 16, mY - 22, 8, 0, Math.PI * 2); ctx.fill();
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(mX - 16, mY - 22, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(mX + 16, mY - 22, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  ctx.strokeStyle = '#022c22'; ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(mX - 28, mY - 35); ctx.lineTo(mX - 8, mY - 28);
+  ctx.moveTo(mX + 28, mY - 35); ctx.lineTo(mX + 8, mY - 28);
+  ctx.stroke();
+
+  ctx.fillStyle = '#000000';
+  ctx.beginPath(); ctx.ellipse(mX, mY - 2, 26, 15, 0, 0, Math.PI); ctx.fill();
+  ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2; ctx.stroke();
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(mX - 18, mY - 2); ctx.lineTo(mX - 14, mY + 8); ctx.lineTo(mX - 10, mY - 2);
+  ctx.moveTo(mX - 6, mY - 2); ctx.lineTo(mX - 2, mY + 11); ctx.lineTo(mX + 2, mY - 2);
+  ctx.moveTo(mX + 10, mY - 2); ctx.lineTo(mX + 14, mY + 8); ctx.lineTo(mX + 18, mY - 2);
+  ctx.fill();
+
+  ctx.restore();
+
   document.getElementById('score').innerText = score;
   document.getElementById('coins').innerText = playerData.coins;
   document.getElementById('diamonds').innerText = playerData.diamonds;
@@ -491,6 +643,6 @@ mainLoop();
 </script>
 </body>
 </html>
-"""
+'''
 
 components.html(html_code, height=560, scrolling=False)
