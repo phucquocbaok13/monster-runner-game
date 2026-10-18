@@ -19,25 +19,24 @@ h1 { text-align: center; color: #00ffff; text-shadow: 0 0 15px rgba(0, 255, 255,
 
 st.markdown("<h1>CHẠY TRỐN QUÁI VẬT - RỪNG ĐÊM</h1>", unsafe_allow_html=True)
 
-part1 = '''
+html_code = """
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Night Forest RPG</title>
 <style>
-body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: monospace; color: white; overflow: hidden; touch-action: none; }
+body { margin: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: monospace; color: white; overflow: hidden; }
 #game-wrap { position: relative; width: 100%; max-width: 800px; box-shadow: 0 0 25px rgba(0, 255, 255, 0.4); border-radius: 8px; overflow: hidden; }
 canvas { display: block; width: 100%; height: auto; background: #030712; }
-#hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; text-shadow: 2px 2px #000; pointer-events: none; z-index: 5; }
+#hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; z-index: 5; }
 .badge { background: rgba(15, 23, 42, 0.85); padding: 5px 10px; border-radius: 6px; border: 1px solid #38bdf8; }
 .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 10; padding: 20px; box-sizing: border-box; }
 .hidden { display: none !important; }
-.btn { background: #0284c7; color: white; border: none; padding: 12px 28px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin: 6px; box-shadow: 0 0 15px #38bdf8; transition: 0.2s; width: 260px; max-width: 100%; }
-.btn:hover { background: #38bdf8; color: #0f172a; transform: scale(1.03); }
-.btn-secondary { background: #475569; box-shadow: 0 0 10px #94a3b8; }
-.btn-secondary:hover { background: #94a3b8; color: #0f172a; }
+.btn { background: #0284c7; color: white; border: none; padding: 12px 28px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin: 6px; width: 260px; }
+.btn:hover { background: #38bdf8; color: #0f172a; }
+.btn-secondary { background: #475569; }
 .panel-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 460px; max-height: 280px; overflow-y: auto; margin: 10px 0; padding: 5px; }
 .item-card { background: rgba(30, 41, 59, 0.85); border: 1px solid #38bdf8; border-radius: 8px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .preview-cvs { width: 50px; height: 60px; border-radius: 6px; border: 1px solid #38bdf8; background: #0f172a; flex-shrink: 0; }
@@ -51,7 +50,7 @@ canvas { display: block; width: 100%; height: auto; background: #030712; }
     <div class="badge" style="color: #38bdf8;">KIM CƯƠNG: <span id="diamonds">0</span></div>
   </div>
   <div id="screen-home" class="screen">
-    <h1 style="color: #38bdf8; font-size: 26px; text-shadow: 0 0 15px #0284c7; margin-bottom: 5px;">CHẠY TRỐN QUÁI VẬT</h1>
+    <h1 style="color: #38bdf8; font-size: 26px; margin-bottom: 5px;">CHẠY TRỐN QUÁI VẬT</h1>
     <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Khám phá Rừng Đêm, thu thập tài nguyên và sinh tồn!</p>
     <div style="margin-bottom: 15px; font-size: 15px; color: #fde047;">🪙 Vàng: <span id="home-coins">0</span> | 💎 Kim cương: <span id="home-diamonds">0</span></div>
     <button class="btn" onclick="startGame()">BẮT ĐẦU CHƠI</button>
@@ -62,9 +61,9 @@ canvas { display: block; width: 100%; height: auto; background: #030712; }
   <div id="screen-tutorial" class="screen hidden">
     <h2 style="color: #38bdf8; margin-top:0;">HƯỚNG DẪN CÁCH CHƠI</h2>
     <div style="text-align: left; max-width: 420px; font-size: 13px; line-height: 1.5; color: #f8fafc; background: rgba(15, 23, 42, 0.9); padding: 15px; border-radius: 8px; border: 1px solid #38bdf8; margin-bottom: 15px;">
-      <p style="margin:0 0 8px 0;"><b>📱 Điện thoại:</b> Vuốt màn hình<br>- Vuốt trái/phải: Đổi làn đường.<br>- Vuốt lên: Nhảy tránh chướng ngại vật.</p>
-      <p style="margin:0 0 8px 0;"><b>💻 Máy tính:</b> Dùng các phím Mũi tên<br>- Mũi tên Trái / Phải: Đổi làn đường.<br>- Mũi tên Lên: Nhảy.</p>
-      <p style="margin:0;"><b>🎯 Mục tiêu:</b> Đạt 3000 điểm tăng tốc độ khắc nghiệt, và chạm mốc 10.000 điểm để tìm cánh cổng thoát thân!</p>
+      <p style="margin:0 0 8px 0;"><b>📱 Điện thoại:</b> Vuốt màn hình (Trái/Phải: Đổi làn, Lên: Nhảy)</p>
+      <p style="margin:0 0 8px 0;"><b>💻 Máy tính:</b> Dùng phím Mũi tên (Trái/Phải: Đổi làn, Lên: Nhảy)</p>
+      <p style="margin:0;"><b>🎯 Mục tiêu:</b> Đạt 3000 điểm tăng tốc độ cực nhanh, chạm 10.000 điểm để tìm cổng thoát thân!</p>
     </div>
     <button class="btn btn-secondary" onclick="showScreen('screen-home')">QUAY LẠI</button>
   </div>
@@ -87,17 +86,15 @@ canvas { display: block; width: 100%; height: auto; background: #030712; }
     <button class="btn btn-secondary" onclick="showScreen('screen-home')">VỀ TRANG CHỦ</button>
   </div>
   <div id="screen-victory" class="screen hidden">
-    <h1 style="color: #34d399; font-size: 24px; margin-bottom: 10px;">CHÚC MỪNG BẠN ĐÃ SỐNG SÓT KHỎI QUÁI VẬT!</h1>
+    <h1 style="color: #34d399; font-size: 24px; margin-bottom: 10px;">CHÚC MỪNG BẠN SỐNG SÓT!</h1>
     <p style="color: #fde047; font-size: 16px; margin: 4px;">⭐ Điểm hoàn thành: <span id="vic-score">10000</span></p>
-    <p style="color: #38bdf8; font-size: 16px; margin: 4px; font-weight: bold;">🎁 Thưởng chiến thắng: +100 💎 Kim cương!</p>
+    <p style="color: #38bdf8; font-size: 16px; margin: 4px; font-weight: bold;">🎁 Thưởng: +100 💎 Kim cương!</p>
     <button class="btn" onclick="startGame()" style="margin-top: 12px;">CHƠI LẠI</button>
     <button class="btn btn-secondary" onclick="showScreen('screen-home')">VỀ TRANG CHỦ</button>
   </div>
   <canvas id="cvs" width="800" height="500"></canvas>
 </div>
-'''
 
-part2 = '''
 <script>
 let playerData = {
   coins: 0,
@@ -112,42 +109,8 @@ let playerData = {
   ]
 };
 
-try {
-  let saved = localStorage.getItem('nightForestRPG');
-  if (saved) {
-    let parsed = JSON.parse(saved);
-    if (parsed) {
-      playerData.coins = Number(parsed.coins) || 0;
-      playerData.diamonds = Number(parsed.diamonds) || 100;
-      playerData.unlockedSkins = parsed.unlockedSkins || ['default'];
-      playerData.equippedSkin = parsed.equippedSkin || 'default';
-      playerData.questTier = Number(parsed.questTier) || 1;
-      
-      if (parsed.quests && Array.isArray(parsed.quests) && parsed.quests.length > 0) {
-        playerData.quests = parsed.quests.map((q, idx) => {
-          let defTarget = idx === 0 ? 500 : (idx === 1 ? 10 : 3);
-          let defReward = idx === 0 ? 20 : (idx === 1 ? 20 : 30);
-          let tNum = Number(q.target);
-          let rNum = Number(q.reward);
-          let pNum = Number(q.progress);
-          return {
-            id: Number(q.id) || (idx + 1),
-            title: q.title && !q.title.includes('NaN') ? q.title : (idx === 0 ? 'Chạy sinh tồn đạt 500 điểm' : (idx === 1 ? 'Thu thập tổng cộng 10 vàng' : 'Thu thập 3 viên kim cương')),
-            target: (!isNaN(tNum) && tNum > 0) ? tNum : defTarget,
-            progress: (!isNaN(pNum)) ? pNum : 0,
-            reward: (!isNaN(rNum) && rNum > 0) ? rNum : defReward,
-            claimed: Boolean(q.claimed)
-          };
-        });
-      }
-    }
-  }
-} catch(e) {}
-
+// Khởi tạo an toàn tuyệt đối không phụ thuộc vào localStorage nếu bị chặn
 function saveGame() { 
-  try {
-    localStorage.setItem('nightForestRPG', JSON.stringify(playerData)); 
-  } catch(e) {}
   updateUI(); 
 }
 
@@ -181,18 +144,19 @@ const skins = {
 
 function updateUI() {
   try {
-    document.getElementById('home-coins').innerText = playerData.coins;
-    document.getElementById('home-diamonds').innerText = playerData.diamonds;
-    document.getElementById('shop-diamonds').innerText = playerData.diamonds;
-    document.getElementById('coins').innerText = playerData.coins;
-    document.getElementById('diamonds').innerText = playerData.diamonds;
+    let el = document.getElementById('home-coins'); if (el) el.innerText = playerData.coins;
+    let el2 = document.getElementById('home-diamonds'); if (el2) el2.innerText = playerData.diamonds;
+    let el3 = document.getElementById('shop-diamonds'); if (el3) el3.innerText = playerData.diamonds;
+    let el4 = document.getElementById('coins'); if (el4) el4.innerText = playerData.coins;
+    let el5 = document.getElementById('diamonds'); if (el5) el5.innerText = playerData.diamonds;
   } catch(e) {}
 }
 updateUI();
 
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-  document.getElementById(screenId).classList.remove('hidden');
+  let target = document.getElementById(screenId);
+  if (target) target.classList.remove('hidden');
   if (screenId === 'screen-shop') renderShop();
   if (screenId === 'screen-quests') {
     checkAndRotateQuests();
@@ -205,14 +169,11 @@ function drawDetailedPlayer(ctx, px, py, skin, isJumpingState, animTimer) {
     ctx.save();
     let armCycle = Math.sin(animTimer * 0.6) * 8;
     let legCycle = Math.cos(animTimer * 0.6) * 10;
-
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.beginPath(); ctx.ellipse(px, py + 38, 18, 7, 0, 0, Math.PI*2); ctx.fill();
-
     ctx.fillStyle = skin.accent;
     ctx.fillRect(px - 10, py + 12 + legCycle, 7, 24);
     ctx.fillRect(px + 3, py + 12 - legCycle, 7, 24);
-
     let bodyGrad = ctx.createLinearGradient(px - 15, py - 20, px + 15, py + 20);
     bodyGrad.addColorStop(0, skin.color);
     bodyGrad.addColorStop(1, skin.accent);
@@ -221,35 +182,22 @@ function drawDetailedPlayer(ctx, px, py, skin, isJumpingState, animTimer) {
     if (ctx.roundRect) { ctx.roundRect(px - 14, py - 24, 28, 38, 6); } else { ctx.rect(px - 14, py - 24, 28, 38); }
     ctx.fill();
     ctx.strokeStyle = skin.glow; ctx.lineWidth = 1.5; ctx.stroke();
-
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(px - 14, py - 2, 28, 5);
-    ctx.fillStyle = '#fde047';
-    ctx.fillRect(px - 3, py - 3, 6, 7);
-
+    ctx.fillStyle = '#1e293b'; ctx.fillRect(px - 14, py - 2, 28, 5);
+    ctx.fillStyle = '#fde047'; ctx.fillRect(px - 3, py - 3, 6, 7);
     ctx.fillStyle = skin.accent;
     ctx.fillRect(px - 22, py - 20 + armCycle, 7, 20);
     ctx.fillRect(px + 15, py - 20 - armCycle, 7, 20);
-
     ctx.fillStyle = '#fbcfe8';
     ctx.beginPath(); ctx.arc(px, py - 32, 11, 0, Math.PI * 2); ctx.fill();
-
     ctx.fillStyle = '#0f172a';
     ctx.fillRect(px - 5, py - 35, 3, 4);
     ctx.fillRect(px + 2, py - 35, 3, 4);
-
     ctx.fillStyle = skin.hat;
-    ctx.beginPath();
-    ctx.arc(px, py - 35, 12, Math.PI, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(px, py - 35, 12, Math.PI, Math.PI * 2); ctx.fill();
     ctx.fillRect(px - 14, py - 43, 28, 7);
-
-    ctx.shadowColor = skin.glow;
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = skin.glow;
-    ctx.fillRect(px - 2, py - 46, 4, 4);
+    ctx.shadowColor = skin.glow; ctx.shadowBlur = 10;
+    ctx.fillStyle = skin.glow; ctx.fillRect(px - 2, py - 46, 4, 4);
     ctx.shadowBlur = 0;
-
     ctx.restore();
   } catch(e) {
     ctx.fillStyle = skin.color || '#fff';
@@ -268,6 +216,7 @@ function drawSkinPreview(canvasId, skin) {
 
 function renderShop() {
   let list = document.getElementById('shop-list');
+  if (!list) return;
   list.innerHTML = '';
   for (let key in skins) {
     let skin = skins[key];
@@ -314,13 +263,13 @@ function equipSkin(key) {
 
 function renderQuests() {
   let list = document.getElementById('quest-list');
+  if (!list) return;
   list.innerHTML = '';
   playerData.quests.forEach(q => {
     let target = Number(q.target) || 500;
     let progress = Number(q.progress) || 0;
     let reward = Number(q.reward) || 20;
     let completed = progress >= target;
-    
     let html = "<div class='item-card'>";
     html += "<div style='text-align: left;'><b>" + (q.title || 'Nhiệm vụ') + "</b><br><small style='color:#94a3b8;'>Tiến độ: " + progress + " / " + target + "</small></div>";
     if (q.claimed) {
@@ -348,7 +297,7 @@ function claimQuest(id) {
 }
 
 const cvs = document.getElementById('cvs');
-const ctx = cvs.getContext('2d');
+const ctx = cvs ? cvs.getContext('2d') : null;
 let playing = false, score = 0, runCoins = 0, runDiamonds = 0, speed = 3.5, timer = 0, frameCount = 0, spawnTimer = 0, currentMY = 460;
 const lanes = [280, 400, 520];
 let currentLane = 1, jumpY = 0, jumpVY = 0, isJumping = false;
@@ -366,21 +315,24 @@ window.addEventListener('keydown', (e) => {
 });
 
 let touchStartX = 0, touchStartY = 0;
-cvs.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, {passive: true});
-cvs.addEventListener('touchend', (e) => {
-  if (!playing) return;
-  let diffX = e.changedTouches[0].screenX - touchStartX;
-  let diffY = e.changedTouches[0].screenY - touchStartY;
-  if (Math.abs(diffX) > Math.abs(diffY)) {
-    if (diffX > 30) goRight(); else if (diffX < -30) goLeft();
-  } else {
-    if (diffY < -30) goJump();
-  }
-}, {passive: true});
+if (cvs) {
+  cvs.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, {passive: true});
+  cvs.addEventListener('touchend', (e) => {
+    if (!playing) return;
+    let diffX = e.changedTouches[0].screenX - touchStartX;
+    let diffY = e.changedTouches[0].screenY - touchStartY;
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX > 30) goRight(); else if (diffX < -30) goLeft();
+    } else {
+      if (diffY < -30) goJump();
+    }
+  }, {passive: true});
+}
 
 function startGame() {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-  document.getElementById('hud').classList.remove('hidden');
+  let hud = document.getElementById('hud');
+  if (hud) hud.classList.remove('hidden');
   playing = true; score = 0; runCoins = 0; runDiamonds = 0; speed = 3.5; currentLane = 1; jumpY = 0; isJumping = false; frameCount = 0; spawnTimer = 0; currentMY = 460;
   obstacles = []; coinList = []; diamondList = []; gateObj = null; floatTexts = [];
 }
@@ -495,23 +447,26 @@ function updateGame() {
 function gameOver() {
   playing = false;
   saveGame();
-  document.getElementById('hud').classList.add('hidden');
-  document.getElementById('go-score').innerText = score;
-  document.getElementById('go-coins').innerText = runCoins;
-  document.getElementById('go-diamonds').innerText = runDiamonds;
-  document.getElementById('screen-gameover').classList.remove('hidden');
+  let hud = document.getElementById('hud');
+  if (hud) hud.classList.add('hidden');
+  let goScore = document.getElementById('go-score'); if (goScore) goScore.innerText = score;
+  let goCoins = document.getElementById('go-coins'); if (goCoins) goCoins.innerText = runCoins;
+  let goDiamonds = document.getElementById('go-diamonds'); if (goDiamonds) goDiamonds.innerText = runDiamonds;
+  let screenGo = document.getElementById('screen-gameover'); if (screenGo) screenGo.classList.remove('hidden');
 }
 
 function victoryGame() {
   playing = false;
   playerData.diamonds = (Number(playerData.diamonds) || 0) + 100;
   saveGame();
-  document.getElementById('hud').classList.add('hidden');
-  document.getElementById('vic-score').innerText = score;
-  document.getElementById('screen-victory').classList.remove('hidden');
+  let hud = document.getElementById('hud');
+  if (hud) hud.classList.add('hidden');
+  let vicScore = document.getElementById('vic-score'); if (vicScore) vicScore.innerText = score;
+  let screenVic = document.getElementById('screen-victory'); if (screenVic) screenVic.classList.remove('hidden');
 }
 
 function renderGame() {
+  if (!ctx || !cvs) return;
   ctx.clearRect(0, 0, cvs.width, cvs.height);
   let skyGrad = ctx.createLinearGradient(0, 0, 0, 500);
   skyGrad.addColorStop(0, '#020617'); skyGrad.addColorStop(1, '#0f172a');
@@ -615,9 +570,9 @@ function renderGame() {
   ctx.bezierCurveTo(mX + 15, mY + 55, mX - 15, mY + 55, mX - 30, mY + 40);
   ctx.bezierCurveTo(mX - 50, mY + 10, mX - 45, mY - 40, mX, mY - 60); ctx.fill();
 
-  document.getElementById('score').innerText = score;
-  document.getElementById('coins').innerText = playerData.coins;
-  document.getElementById('diamonds').innerText = playerData.diamonds;
+  let elScore = document.getElementById('score'); if (elScore) elScore.innerText = score;
+  let elCoins = document.getElementById('coins'); if (elCoins) elCoins.innerText = playerData.coins;
+  let elDiamonds = document.getElementById('diamonds'); if (elDiamonds) elDiamonds.innerText = playerData.diamonds;
 }
 
 function mainLoop() {
@@ -628,8 +583,6 @@ mainLoop();
 </script>
 </body>
 </html>
-'''
-
-html_code = part1 + part2
+"""
 
 components.html(html_code, height=560, scrolling=False)
