@@ -54,10 +54,10 @@ canvas { display: block; width: 100%; height: auto; background: #030712; }
     <h1 style="color: #38bdf8; font-size: 26px; text-shadow: 0 0 15px #0284c7; margin-bottom: 5px;">CHẠY TRỐN QUÁI VẬT</h1>
     <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Khám phá Rừng Đêm, thu thập tài nguyên và sinh tồn!</p>
     <div style="margin-bottom: 15px; font-size: 15px; color: #fde047;">🪙 Vàng: <span id="home-coins">0</span> | 💎 Kim cương: <span id="home-diamonds">0</span></div>
-    <button class="btn" id="btn-start">BẮT ĐẦU CHƠI</button>
-    <button class="btn btn-secondary" id="btn-tut">HƯỚNG DẪN CÁCH CHƠI</button>
-    <button class="btn btn-secondary" id="btn-shop">CỬA HÀNG TRANG PHỤC</button>
-    <button class="btn btn-secondary" id="btn-quest">NHIỆM VỤ NHẬN THƯỞNG</button>
+    <button class="btn" onclick="startGame()">BẮT ĐẦU CHƠI</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-tutorial')">HƯỚNG DẪN CÁCH CHƠI</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-shop')">CỬA HÀNG TRANG PHỤC</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-quests')">NHIỆM VỤ NHẬN THƯỞNG</button>
   </div>
   <div id="screen-tutorial" class="screen hidden">
     <h2 style="color: #38bdf8; margin-top:0;">HƯỚNG DẪN CÁCH CHƠI</h2>
@@ -83,14 +83,14 @@ canvas { display: block; width: 100%; height: auto; background: #030712; }
     <h1 style="color: #f43f5e; font-size: 28px; margin-bottom: 10px;">BẠN ĐÃ BỊ TÚM TÓC!</h1>
     <p style="color: #fde047; font-size: 16px; margin: 4px;">⭐ Điểm đạt được: <span id="go-score">0</span></p>
     <p style="color: #fde047; font-size: 14px; margin: 4px;">🪙 Vàng nhặt: +<span id="go-coins">0</span> | 💎 Kim cương: +<span id="go-diamonds">0</span></p>
-    <button class="btn" id="btn-replay" style="margin-top: 12px;">CHƠI LẠI NGAY</button>
+    <button class="btn" onclick="startGame()" style="margin-top: 12px;">CHƠI LẠI NGAY</button>
     <button class="btn btn-secondary" onclick="showScreen('screen-home')">VỀ TRANG CHỦ</button>
   </div>
   <div id="screen-victory" class="screen hidden">
     <h1 style="color: #34d399; font-size: 24px; margin-bottom: 10px;">CHÚC MỪNG BẠN ĐÃ SỐNG SÓT KHỎI QUÁI VẬT!</h1>
     <p style="color: #fde047; font-size: 16px; margin: 4px;">⭐ Điểm hoàn thành: <span id="vic-score">10000</span></p>
     <p style="color: #38bdf8; font-size: 16px; margin: 4px; font-weight: bold;">🎁 Thưởng chiến thắng: +100 💎 Kim cương!</p>
-    <button class="btn" id="btn-win-replay" style="margin-top: 12px;">CHƠI LẠI</button>
+    <button class="btn" onclick="startGame()" style="margin-top: 12px;">CHƠI LẠI</button>
     <button class="btn btn-secondary" onclick="showScreen('screen-home')">VỀ TRANG CHỦ</button>
   </div>
   <canvas id="cvs" width="800" height="500"></canvas>
@@ -384,13 +384,6 @@ function startGame() {
   playing = true; score = 0; runCoins = 0; runDiamonds = 0; speed = 3.5; currentLane = 1; jumpY = 0; isJumping = false; frameCount = 0; spawnTimer = 0; currentMY = 460;
   obstacles = []; coinList = []; diamondList = []; gateObj = null; floatTexts = [];
 }
-
-document.getElementById('btn-start').addEventListener('click', startGame);
-document.getElementById('btn-replay').addEventListener('click', startGame);
-document.getElementById('btn-win-replay').addEventListener('click', startGame);
-document.getElementById('btn-tut').addEventListener('click', () => showScreen('screen-tutorial'));
-document.getElementById('btn-shop').addEventListener('click', () => showScreen('screen-shop'));
-document.getElementById('btn-quest').addEventListener('click', () => showScreen('screen-quests'));
 
 function spawnObjects() {
   if (!playing) return;
