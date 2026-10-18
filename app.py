@@ -200,6 +200,118 @@ function showScreen(screenId) {
   }
 }
 
+function drawDetailedPlayer(ctx, px, py, skin, isJumpingState, animTimer) {
+  try {
+    ctx.save();
+    let armCycle = Math.sin(animTimer * 0.6) * 8;
+    let legCycle = Math.cos(animTimer * 0.6) * 10;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath(); ctx.ellipse(px, py + 38, 18, 7, 0, 0, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = skin.accent;
+    ctx.fillRect(px - 10, py + 12 + legCycle, 7, 24);
+    ctx.fillRect(px + 3, py + 12 - legCycle, 7, 24);
+
+    let bodyGrad = ctx.createLinearGradient(px - 15, py - 20, px + 15, py + 20);
+    bodyGrad.addColorStop(0, skin.color);
+    bodyGrad.addColorStop(1, skin.accent);
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    if (ctx.roundRect) { ctx.roundRect(px - 14, py - 24, 28, 38, 6); } else { ctx.rect(px - 14, py - 24, 28, 38); }
+    ctx.fill();
+    ctx.strokeStyle = skin.glow; ctx.lineWidth = 1.5; ctx.stroke();
+
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(px - 14, py - 2, 28, 5);
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(px - 3, py - 3, 6, 7);
+
+    ctx.fillStyle = skin.accent;
+    ctx.fillRect(px - 22, py - 20 + armCycle, 7, 20);
+    ctx.fillRect(px + 15, py - 20 - armCycle, 7, 20);
+
+    ctx.fillStyle = '#fbcfe8';
+    ctx.beginPath(); ctx.arc(px, py - 32, 11, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(px - 5, py - 35, 3, 4);
+    ctx.fillRect(px + 2, py - 35, 3, 4);
+
+    ctx.fillStyle = skin.hat;
+    ctx.beginPath();
+    ctx.arc(px, py - 35, 12, Math.PI, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(px - 14, py - 43, 28, 7);
+
+    ctx.shadowColor = skin.glow;
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = skin.glow;
+    ctx.fillRect(px - 2, py - 46, 4, 4);
+    ctx.shadowBlur = 0;
+
+    ctx.restore();
+  } catch(e) {
+    ctx.fillStyle = skin.color || '#fff';
+    ctx.fillRect(15, 10, 20, 30);
+  }
+}
+
+function drawSkinPreview(canvasId, skin) {
+  let pCvs = document.getElementById(canvasId);
+  if (!pCvs) return;
+  let pCtx = pCvs.getContext('2d');
+  if (!pCtx) return;
+  pCtx.clearRect(0, 0, 50, 60);
+  drawDetailedPlayer(pCtx, 25, 32, skin, false, 0);
+}
+
+function renderShop() {
+  let list = document.getElementById('shop-list');
+  list.innerHTML = '';
+  for (let key in skins) {
+    let skin = skins[key];
+    let unlocked = playerData.unlockedSkins.includes(key);
+    let equipped = playerData.equippedSkin === key;
+    let cvsId = 'cvs-skin-' + key;
+    let html = "<div class='item-card'>";
+    html += "<canvas id='" + cvsId + "' width='50' height='60' class='preview-cvs'></canvas>";
+    html += "<div style='text-align: left; flex-grow: 1;'><b>" + skin.name + "</b><br><small style='color:#fde047;'>" + (skin.cost > 0 ? skin.cost + " 💎" : "Miễn phí") + "</small></div>";
+    if (equipped) {
+      html += "<span style='color: #34d399; font-weight:bold; font-size:13px;'>Đang mặc</span>";
+    } else if (unlocked) {
+      html += "<button class='btn' style='padding:6px 14px; font-size:13px; width:auto; margin:0;' onclick='equipSkin(\"" + key + "\")'>Chọn</button>";
+    } else {
+      html += "<button class='btn' style='padding:6px 14px; font-size:13px; width:auto; margin:0;' onclick='buySkin(\"" + key + "\")'>Mua</button>";
+    }
+    html += "</div>";
+    list.innerHTML += html;
+  }
+  setTimeout(() => {
+    for (let key in skins) { drawSkinPreview('cvs-skin-' + key, skins[key]); }
+  }, 150);
+}
+
+function buySkin(key) {
+  let skin = skins[key];
+  if (playerData.diamonds >= skin.cost) {
+    playerData.diamonds -= skin.cost;
+    playerData.unlockedSkins.push(key);
+    playerData.equippedSkin = key;
+    saveGame();
+    renderShop();
+    alert('Mua thành công trang phục mới!');
+  } else {
+    alert('Bạn không đủ kim cương!');
+  }
+}
+
+function equipSkin(key) {
+  playerData.equippedSkin = key;
+  saveGame();
+  renderShop();
+}
+
 function renderQuests() {
   let list = document.getElementById('quest-list');
   list.innerHTML = '';
@@ -406,58 +518,6 @@ function victoryGame() {
   document.getElementById('screen-victory').classList.remove('hidden');
 }
 
-function drawDetailedPlayer(ctx, px, py, skin, isJumpingState, animTimer) {
-  ctx.save();
-  let armCycle = Math.sin(animTimer * 0.6) * 8;
-  let legCycle = Math.cos(animTimer * 0.6) * 10;
-
-  ctx.fillStyle = 'rgba(0,0,0,0.5)';
-  ctx.beginPath(); ctx.ellipse(px, py + 38, 18, 7, 0, 0, Math.PI*2); ctx.fill();
-
-  ctx.fillStyle = skin.accent;
-  ctx.fillRect(px - 10, py + 12 + legCycle, 7, 24);
-  ctx.fillRect(px + 3, py + 12 - legCycle, 7, 24);
-
-  let bodyGrad = ctx.createLinearGradient(px - 15, py - 20, px + 15, py + 20);
-  bodyGrad.addColorStop(0, skin.color);
-  bodyGrad.addColorStop(1, skin.accent);
-  ctx.fillStyle = bodyGrad;
-  ctx.beginPath();
-  if (ctx.roundRect) { ctx.roundRect(px - 14, py - 24, 28, 38, 6); } else { ctx.rect(px - 14, py - 24, 28, 38); }
-  ctx.fill();
-  ctx.strokeStyle = skin.glow; ctx.lineWidth = 1.5; ctx.stroke();
-
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(px - 14, py - 2, 28, 5);
-  ctx.fillStyle = '#fde047';
-  ctx.fillRect(px - 3, py - 3, 6, 7);
-
-  ctx.fillStyle = skin.accent;
-  ctx.fillRect(px - 22, py - 20 + armCycle, 7, 20);
-  ctx.fillRect(px + 15, py - 20 - armCycle, 7, 20);
-
-  ctx.fillStyle = '#fbcfe8';
-  ctx.beginPath(); ctx.arc(px, py - 32, 11, 0, Math.PI * 2); ctx.fill();
-
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(px - 5, py - 35, 3, 4);
-  ctx.fillRect(px + 2, py - 35, 3, 4);
-
-  ctx.fillStyle = skin.hat;
-  ctx.beginPath();
-  ctx.arc(px, py - 35, 12, Math.PI, Math.PI * 2);
-  ctx.fill();
-  ctx.fillRect(px - 14, py - 43, 28, 7);
-
-  ctx.shadowColor = skin.glow;
-  ctx.shadowBlur = 10;
-  ctx.fillStyle = skin.glow;
-  ctx.fillRect(px - 2, py - 46, 4, 4);
-  ctx.shadowBlur = 0;
-
-  ctx.restore();
-}
-
 function renderGame() {
   ctx.clearRect(0, 0, cvs.width, cvs.height);
   let skyGrad = ctx.createLinearGradient(0, 0, 0, 500);
@@ -577,7 +637,6 @@ mainLoop();
 </html>
 '''
 
-# Ghép nối an toàn tuyệt đối tránh lỗi cú pháp Python
 html_code = part1 + part2
 
 components.html(html_code, height=560, scrolling=False)
