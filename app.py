@@ -97,7 +97,7 @@ canvas { display: block; width: 100%; height: auto; background: #030712; }
 </div>
 
 <script>
-let playerData = JSON.parse(localStorage.getItem('nightForestRPG')) || {
+let playerData = {
   coins: 0,
   diamonds: 100,
   unlockedSkins: ['default'],
@@ -110,8 +110,18 @@ let playerData = JSON.parse(localStorage.getItem('nightForestRPG')) || {
   ]
 };
 
+try {
+  let saved = localStorage.getItem('nightForestRPG');
+  if (saved) {
+    let parsed = JSON.parse(saved);
+    if (parsed) playerData = parsed;
+  }
+} catch(e) {}
+
 function saveGame() { 
-  localStorage.setItem('nightForestRPG', JSON.stringify(playerData)); 
+  try {
+    localStorage.setItem('nightForestRPG', JSON.stringify(playerData)); 
+  } catch(e) {}
   updateUI(); 
 }
 
@@ -143,11 +153,13 @@ const skins = {
 };
 
 function updateUI() {
-  document.getElementById('home-coins').innerText = playerData.coins;
-  document.getElementById('home-diamonds').innerText = playerData.diamonds;
-  document.getElementById('shop-diamonds').innerText = playerData.diamonds;
-  document.getElementById('coins').innerText = playerData.coins;
-  document.getElementById('diamonds').innerText = playerData.diamonds;
+  try {
+    document.getElementById('home-coins').innerText = playerData.coins;
+    document.getElementById('home-diamonds').innerText = playerData.diamonds;
+    document.getElementById('shop-diamonds').innerText = playerData.diamonds;
+    document.getElementById('coins').innerText = playerData.coins;
+    document.getElementById('diamonds').innerText = playerData.diamonds;
+  } catch(e) {}
 }
 updateUI();
 
