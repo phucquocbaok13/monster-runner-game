@@ -2,6 +2,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
+# Cấu hình trang Streamlit
 st.set_page_config(
     page_title="Chạy Trốn Quái Vật - Rừng Đêm",
     page_icon="🌲",
@@ -63,7 +64,7 @@ canvas { display: block; width: 100%; height: auto; background: #030712; }
     <div style="text-align: left; max-width: 420px; font-size: 13px; line-height: 1.5; color: #f8fafc; background: rgba(15, 23, 42, 0.9); padding: 15px; border-radius: 8px; border: 1px solid #38bdf8; margin-bottom: 15px;">
       <p style="margin:0 0 8px 0;"><b>📱 Điện thoại:</b> Vuốt màn hình<br>- Vuốt trái/phải: Đổi làn đường.<br>- Vuốt lên: Nhảy tránh chướng ngại vật.</p>
       <p style="margin:0 0 8px 0;"><b>💻 Máy tính:</b> Dùng các phím Mũi tên<br>- Mũi tên Trái / Phải: Đổi làn đường.<br>- Mũi tên Lên: Nhảy.</p>
-      <p style="margin:0;"><b>🎯 Mục tiêu:</b> Sống sót đạt 10.000 điểm để tìm cánh cổng thoát thân, né tránh quái vật và chướng ngại vật!</p>
+      <p style="margin:0;"><b>🎯 Mục tiêu:</b> Đạt 3000 điểm tăng tốc độ khắc nghiệt, và chạm mốc 10.000 điểm để tìm cánh cổng thoát thân!</p>
     </div>
     <button class="btn btn-secondary" onclick="showScreen('screen-home')">QUAY LẠI</button>
   </div>
@@ -311,7 +312,7 @@ function claimQuest(id) {
 
 const cvs = document.getElementById('cvs');
 const ctx = cvs.getContext('2d');
-let playing = false, score = 0, runCoins = 0, runDiamonds = 0, speed = 3.5, timer = 0, frameCount = 0, currentMY = 460;
+let playing = false, score = 0, runCoins = 0, runDiamonds = 0, speed = 3.5, timer = 0, frameCount = 0, spawnTimer = 0, currentMY = 460;
 const lanes = [280, 400, 520];
 let currentLane = 1, jumpY = 0, jumpVY = 0, isJumping = false;
 let obstacles = [], coinList = [], diamondList = [], gateObj = null, floatTexts = [], roadOffset = 0;
@@ -343,7 +344,7 @@ cvs.addEventListener('touchend', (e) => {
 function startGame() {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   document.getElementById('hud').classList.remove('hidden');
-  playing = true; score = 0; runCoins = 0; runDiamonds = 0; speed = 3.5; currentLane = 1; jumpY = 0; isJumping = false; frameCount = 0; currentMY = 460;
+  playing = true; score = 0; runCoins = 0; runDiamonds = 0; speed = 3.5; currentLane = 1; jumpY = 0; isJumping = false; frameCount = 0; spawnTimer = 0; currentMY = 460;
   obstacles = []; coinList = []; diamondList = []; gateObj = null; floatTexts = [];
 }
 
@@ -357,19 +358,32 @@ document.getElementById('btn-quest').addEventListener('click', () => showScreen(
 function spawnObjects() {
   if (!playing) return;
   if (score >= 10000 && !gateObj) return;
+  let types = ['rock', 'log', 'tree'];
   let lane = Math.floor(Math.random() * 3);
-  let rand = Math.random();
-  let chanceRock = score >= 2000 ? 0.6 : 0.5;
-  if (rand < chanceRock) {
-    let types = ['rock', 'log', 'tree'];
+
+  if (score >= 3000) {
+    // 3000 điểm: Chướng ngại vật xếp chằng chịt, xuất hiện 2 làn cùng lúc cực kỳ dồn dập
     obstacles.push({ lane: lane, y: -50, type: types[Math.floor(Math.random() * types.length)] });
-  } else if (rand < 0.85) {
-    coinList.push({ lane: lane, y: -50 });
+    let lane2 = (lane + 1) % 3;
+    obstacles.push({ lane: lane2, y: -80, type: types[Math.floor(Math.random() * types.length)] });
+  } else if (score >= 2000) {
+    // 2000 điểm: Tăng tần suất vật cản
+    obstacles.push({ lane: lane, y: -50, type: types[Math.floor(Math.random() * types.length)] });
+    if (Math.random() < 0.4) {
+      let lane2 = (lane + 1) % 3;
+      coinList.push({ lane: lane2, y: -50 });
+    }
   } else {
-    diamondList.push({ lane: lane, y: -50 });
+    let rand = Math.random();
+    if (rand < 0.5) {
+      obstacles.push({ lane: lane, y: -50, type: types[Math.floor(Math.random() * types.length)] });
+    } else if (rand < 0.8) {
+      coinList.push({ lane: lane, y: -50 });
+    } else {
+      diamondList.push({ lane: lane, y: -50 });
+    }
   }
 }
-setInterval(spawnObjects, 1300);
 
 function updateGame() {
   if (!playing) return;
@@ -377,9 +391,21 @@ function updateGame() {
   frameCount++;
   timer += 0.15;
 
-  let baseSpeed = score >= 2000 ? 5.5 : 3.5;
+  // Hệ thống tăng tốc theo mốc điểm
+  let baseSpeed = 3.5;
+  if (score >= 3000) baseSpeed = 7.0;       // Tăng tốc cực nhanh từ 3000 điểm
+  else if (score >= 2000) baseSpeed = 5.2;  // Tăng tốc từ 2000 điểm
+  
   speed = baseSpeed + Math.floor(score / 500) * 0.25;
   roadOffset += speed;
+
+  // Quản lý thời gian xuất hiện đồ vật động theo điểm số (càng cao ra càng nhanh)
+  spawnTimer++;
+  let currentSpawnThreshold = score >= 3000 ? 35 : (score >= 2000 ? 50 : 75);
+  if (spawnTimer >= currentSpawnThreshold) {
+    spawnTimer = 0;
+    spawnObjects();
+  }
 
   if (isJumping) { 
     jumpY += jumpVY; 
