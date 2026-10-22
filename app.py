@@ -70,17 +70,17 @@ if "equipped_skin" not in st.session_state:
 
 # Giao diện điều hướng Menu chính trực tiếp trên Streamlit
 if st.session_state.game_state == "home":
-    st.markdown("""
+    st.markdown(f"""
     <div class="game-container">
         <div class="menu-box">
             <h2 style="color: #38bdf8; margin-top:0;">SẴN SÀNG SINH TỒN</h2>
             <p style="color: #94a3b8; font-size: 13px;">Khám phá Rừng Đêm, né tránh quái vật và thu thập kim cương!</p>
             <div style="font-size: 14px; color: #fde047; margin-bottom: 15px;">
-                🪙 Vàng: <b>{}</b> | 💎 Kim cương: <b>{}</b>
+                🪙 Vàng: <b>{st.session_state.coins}</b> | 💎 Kim cương: <b>{st.session_state.diamonds}</b>
             </div>
         </div>
     </div>
-    """.format(st.session_state.coins, st.session_state.diamonds), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     with col1:
@@ -99,7 +99,7 @@ if st.session_state.game_state == "home":
             st.rerun()
 
 elif st.session_state.game_state == "tutorial":
-    st.info("### HƯỚNG DẪN CÁCH CHƠI\n- **Điện thoại / Máy tính:** Sử dụng các nút điều khiển hoặc phím Mũi tên để di chuyển.\n- **Mục tiêu:** Né tránh chướng ngại vật, thu thập vật phẩm và sống sót đến mích mốc 10.000 điểm!")
+    st.info("### HƯỚNG DẪN CÁCH CHƠI\n- **Điện thoại / Máy tính:** Sử dụng các nút điều khiển hoặc phím Mũi tên để di chuyển.\n- **Mục tiêu:** Né tránh chướng ngại vật, thu thập vật phẩm và sống sót đến mốc 10.000 điểm!")
     if st.button("⬅️ QUAY LẠI TRANG CHỦ"):
         st.session_state.game_state = "home"
         st.rerun()
@@ -117,7 +117,6 @@ elif st.session_state.game_state == "quests":
         st.rerun()
 
 elif st.session_state.game_state == "playing":
-    # Tích hợp canvas game HTML5 trực tiếp
     game_canvas_code = f"""
     <!DOCTYPE html>
     <html lang="vi">
@@ -167,15 +166,13 @@ elif st.session_state.game_state == "playing":
     function render() {{
       ctx.clearRect(0, 0, 800, 500);
       ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, 800, 500);
-      // Đường chạy
       ctx.fillStyle = '#1e293b'; ctx.fillRect(200, 0, 400, 500);
       ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;
       ctx.beginPath(); ctx.moveTo(200, 0); ctx.lineTo(200, 500); ctx.moveTo(600, 0); ctx.lineTo(600, 500); ctx.stroke();
       
-      // Nhân vật
       let px = lanes[currentLane], py = 385 + jumpY;
       ctx.fillStyle = '#fbcfe8'; ctx.beginPath(); ctx.arc(px, py - 32, 11, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#38bdf80'; ctx.fillRect(px - 14, py - 24, 28, 38);
+      ctx.fillStyle = '#38bdf8'; ctx.fillRect(px - 14, py - 24, 28, 38);
 
       document.getElementById('score').innerText = score;
     }}
@@ -193,9 +190,3 @@ elif st.session_state.game_state == "playing":
     if st.button("🏠 VỀ LẠI TRANG CHỦ"):
         st.session_state.game_state = "home"
         st.rerun()
-
----
-
-<ElicitationsGroup message="Với giao diện quản lý bằng Streamlit trực tiếp này, bạn đã thấy các nút bấm xuất hiện và vào được game chưa?">
-  <Elicitation label="Đã thấy nút bấm và vào được game" query="Đã thấy nút bấm và vào được game" />
-</ElicitationsGroup>
