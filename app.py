@@ -117,6 +117,54 @@ let playerData = {
   ]
 };
 
+// Khởi tạo âm thanh nền bằng Web Audio API an toàn, không sợ mất file nhạc
+let audioCtx = null;
+let bgmInterval = null;
+
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+function playTone(freq, duration, type = 'sine', gainVal = 0.05) {
+  if (!audioCtx) return;
+  try {
+    let osc = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+
+function startBGM() {
+  initAudio();
+  if (bgmInterval) clearInterval(bgmInterval);
+  let notes = [220, 247.05, 261.63, 293.66, 329.63, 349.23, 392.00];
+  let step = 0;
+  bgmInterval = setInterval(() => {
+    if (!playing) return;
+    playTone(notes[step % notes.length], 0.25, 'triangle', 0.03);
+    step++;
+  }, 300);
+}
+
+function stopBGM() {
+  if (bgmInterval) {
+    clearInterval(bgmInterval);
+    bgmInterval = null;
+  }
+}
+
 function saveGame() { updateUI(); }
 
 function checkAndRotateQuests() {
@@ -159,6 +207,7 @@ function updateUI() {
 updateUI();
 
 function showScreen(screenId) {
+  initAudio();
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   let target = document.getElementById(screenId);
   if (target) target.classList.remove('hidden');
@@ -254,6 +303,7 @@ function buySkin(key) {
     playerData.equippedSkin = key;
     saveGame();
     renderShop();
+    playTone(600, 0.15, 'sine', 0.1);
     alert('Mua thành công trang phục mới!');
   } else {
     alert('Bạn không đủ kim cương!');
@@ -297,6 +347,7 @@ function claimQuest(id) {
     saveGame();
     checkAndRotateQuests();
     renderQuests();
+    playTone(800, 0.2, 'sine', 0.1);
     alert('Nhận thưởng thành công!');
   }
 }
@@ -308,9 +359,9 @@ const lanes = [280, 400, 520];
 let currentLane = 1, jumpY = 0, jumpVY = 0, isJumping = false;
 let obstacles = [], coinList = [], diamondList = [], gateObj = null, floatTexts = [], roadOffset = 0;
 
-function goLeft() { if (playing && currentLane > 0) currentLane--; }
-function goRight() { if (playing && currentLane < 2) currentLane++; }
-function goJump() { if (playing && !isJumping) { isJumping = true; jumpVY = -11; } }
+function goLeft() { if (playing && currentLane > 0) { currentLane--; playTone(300, 0.05, 'square', 0.02); } }
+function goRight() { if (playing && currentLane < 2) { currentLane++; playTone(350, 0.05, 'square', 0.02); } }
+function goJump() { if (playing && !isJumping) { isJumping = true; jumpVY = -11; playTone(500, 0.1, 'sine', 0.05); } }
 
 window.addEventListener('keydown', (e) => {
   if (!playing) return;
@@ -335,6 +386,8 @@ if (cvs) {
 }
 
 function startGame() {
+  initAudio();
+  startBGM();
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   let hud = document.getElementById('hud');
   if (hud) hud.classList.remove('hidden');
@@ -430,6 +483,7 @@ function updateGame() {
     let c = coinList[i]; c.y += speed;
     if (c.y >= 350 && c.y <= 420 && c.lane === currentLane && jumpY > -45) {
       runCoins++; playerData.coins++;
+      playTone(880, 0.1, 'sine', 0.08);
       playerData.quests.forEach(q => { if (q.id === 2 || q.id === 102 || q.id % 100 === 2) q.progress++; });
       floatTexts.push({ x: lanes[c.lane], y: 360, text: '+1 vàng', alpha: 1.0, vy: -2 });
       coinList.splice(i, 1); continue;
@@ -441,6 +495,7 @@ function updateGame() {
     let d = diamondList[i]; d.y += speed;
     if (d.y >= 350 && d.y <= 420 && d.lane === currentLane && jumpY > -45) {
       runDiamonds++; playerData.diamonds++;
+      playTone(1046.5, 0.15, 'sine', 0.1);
       playerData.quests.forEach(q => { if (q.id === 3 || q.id === 103 || q.id % 100 === 3) q.progress++; });
       floatTexts.push({ x: lanes[d.lane], y: 360, text: '+1 kim cương', alpha: 1.0, vy: -2 });
       diamondList.splice(i, 1); continue;
@@ -451,6 +506,8 @@ function updateGame() {
 
 function gameOver() {
   playing = false;
+  stopBGM();
+  playTone(150, 0.4, 'sawtooth', 0.1);
   saveGame();
   let hud = document.getElementById('hud');
   if (hud) hud.classList.add('hidden');
@@ -462,6 +519,8 @@ function gameOver() {
 
 function victoryGame() {
   playing = false;
+  stopBGM();
+  playTone(880, 0.5, 'sine', 0.1);
   playerData.diamonds = (Number(playerData.diamonds) || 0) + 100;
   saveGame();
   let hud = document.getElementById('hud');
