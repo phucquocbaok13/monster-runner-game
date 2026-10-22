@@ -96,7 +96,6 @@ elif st.session_state.game_state == "quests":
         st.rerun()
 
 elif st.session_state.game_state == "playing":
-    # Sử dụng HTML thuần không dùng f-string phức tạp bên trong script để tránh lỗi
     game_canvas_code = """
     <!DOCTYPE html>
     <html lang="vi">
@@ -106,8 +105,8 @@ elif st.session_state.game_state == "playing":
     body { margin: 0; background: #030712; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: monospace; color: white; }
     #canvas-wrap { position: relative; width: 100%; max-width: 800px; aspect-ratio: 8/5; box-shadow: 0 0 20px #38bdf8; border-radius: 8px; overflow: hidden; }
     canvas { display: block; width: 100%; height: 100%; background: #030712; }
-    #hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; pointer-events: none; }
-    .badge { background: rgba(15, 23, 42, 0.85); padding: 5px 10px; border-radius: 6px; border: 1px solid #38bdf8; }
+    #hud { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; font-size: 15px; font-weight: bold; z-index: 20; pointer-events: none; }
+    .badge { background: rgba(15, 23, 42, 0.9); padding: 6px 12px; border-radius: 6px; border: 1px solid #38bdf8; box-shadow: 0 0 8px rgba(56,189,248,0.5); }
     </style>
     </head>
     <body>
